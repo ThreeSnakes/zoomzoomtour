@@ -10,7 +10,7 @@ export class SellerController {
   @Post()
   @ApiOperation({
     summary: 'Seller 등록 API',
-    description: 'Seller를 등록한다.',
+    description: '신규 Seller를 등록할 때 사용한다.',
   })
   async registerSeller(@Body() registerSellerDto: RegisterSellerDto) {
     return this.sellerService.createNewSeller({

@@ -3,12 +3,12 @@ import { IsString, MaxLength, MinLength } from 'class-validator';
 
 export class RegisterSellerDto {
   @ApiProperty({
-    description: 'username',
-    minLength: 5,
-    maxLength: 20,
+    description: 'Seller name',
+    minLength: 1,
+    maxLength: 100,
   })
-  @MinLength(5)
-  @MaxLength(20)
+  @MinLength(1)
+  @MaxLength(100)
   @IsString()
   name: string;
 }

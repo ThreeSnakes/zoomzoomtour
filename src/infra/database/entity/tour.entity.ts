@@ -2,14 +2,15 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  OneToMany,
+  JoinColumn,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Tour } from './tour.entity';
+import { Seller } from './seller.entity';
 
-@Entity('SELLER')
-export class Seller {
+@Entity('TOUR')
+export class Tour {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -19,8 +20,15 @@ export class Seller {
   })
   name: string;
 
-  @OneToMany(() => Tour, (tour) => tour.id)
-  tours: Promise<Tour[]>;
+  @Column({
+    length: 200,
+    nullable: false,
+  })
+  description: string;
+
+  @ManyToOne(() => Seller, (seller) => seller.tours)
+  @JoinColumn({ name: 'seller_id' })
+  seller?: Promise<Seller>;
 
   @CreateDateColumn({
     type: 'timestamp',

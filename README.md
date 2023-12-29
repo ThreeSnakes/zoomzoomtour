@@ -33,3 +33,8 @@ $ npm run test:e2e
 # test coverage
 $ npm run test:cov
 ```
+
+## API Doc
+
+- 서버 실행 후 다음으로 접속하시면 Swagger Page를 보실 수 있습니다.
+- [apidoc link](http://localhost:3001/apidoc)

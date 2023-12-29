@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -9,6 +10,15 @@ async function bootstrap() {
   });
   const configService = app.get(ConfigService);
   const PORT = configService.get('PORT');
+
+  // ValidationPipe 설정
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      transform: true,
+      disableErrorMessages: false,
+    }),
+  );
 
   // Swagger 설정
   const swaggerConfig = new DocumentBuilder()

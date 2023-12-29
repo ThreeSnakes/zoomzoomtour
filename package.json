@@ -1,8 +1,8 @@
 {
   "name": "zoomzoomtour",
   "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "description": "zoomzoomtour 과제 repository",
+  "author": "changhyun lim",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
@@ -65,5 +65,11 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
+  },
+  "engines": {
+    "node": ">=20.10.0"
+  },
+  "volta": {
+    "node": "20.10.0"
   }
 }

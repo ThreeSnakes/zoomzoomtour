@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Seller } from '../../database/entity/seller.entity';
+import { Seller } from '../../infra/database/entity/seller.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateNewSellerDto } from './dto/service/createNewSeller.dto';

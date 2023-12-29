@@ -5,7 +5,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CacheModule } from '@nestjs/cache-manager';
 import { Seller } from './infra/database/entity/seller.entity';
-import { SellerModule } from './infra/module/seller/seller.module';
+import { SellerModule } from './module/seller/seller.module';
 
 const isDev = process.env.NODE_ENV !== 'production';
 

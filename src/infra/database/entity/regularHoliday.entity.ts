@@ -7,19 +7,19 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Tour } from './tour.entity';
+import { TourEntity } from './tour.entity';
 import { DAY_OF_WEEK } from '../../../module/tour/dto/api/CreateTour.dto';
 
 @Entity('REGULAR_HOLIDAY')
-export class RegularHoliday {
+export class RegularHolidayEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Tour, (tour) => tour.id)
+  @ManyToOne(() => TourEntity, (tour) => tour.id)
   @JoinColumn({
     name: 'tour_id',
   })
-  tour?: Promise<Tour>;
+  tour?: Promise<TourEntity>;
 
   @Column({
     nullable: false,

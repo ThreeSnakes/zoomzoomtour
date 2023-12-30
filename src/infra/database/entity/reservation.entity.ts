@@ -7,8 +7,8 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Client } from './client.entity';
-import { Tour } from './tour.entity';
+import { ClientEntity } from './client.entity';
+import { TourEntity } from './tour.entity';
 
 export enum RESERVATION_STATE {
   WAIT = 0, // 대기
@@ -16,21 +16,21 @@ export enum RESERVATION_STATE {
 }
 
 @Entity('RESERVATION')
-export class Reservation {
+export class ReservationEntity {
   @PrimaryGeneratedColumn('uuid')
   token: string;
 
-  @ManyToOne(() => Client, (client) => client.id)
+  @ManyToOne(() => ClientEntity, (client) => client.id)
   @JoinColumn({
     name: 'client_id',
   })
-  client?: Promise<Awaited<Client>>;
+  client?: Promise<Awaited<ClientEntity>>;
 
-  @ManyToOne(() => Tour, (tour) => tour.id)
+  @ManyToOne(() => TourEntity, (tour) => tour.id)
   @JoinColumn({
     name: 'tour_id',
   })
-  tour?: Promise<Awaited<Tour>>;
+  tour?: Promise<Awaited<TourEntity>>;
 
   @Column({
     default: RESERVATION_STATE.WAIT,

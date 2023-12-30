@@ -7,18 +7,18 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Tour } from './tour.entity';
+import { TourEntity } from './tour.entity';
 
 @Entity('HOLIDAY')
-export class Holiday {
+export class HolidayEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Tour, (tour) => tour.id)
+  @ManyToOne(() => TourEntity, (tour) => tour.id)
   @JoinColumn({
     name: 'tour_id',
   })
-  tour?: Promise<Tour>;
+  tour?: Promise<TourEntity>;
 
   @Column({
     length: 5,

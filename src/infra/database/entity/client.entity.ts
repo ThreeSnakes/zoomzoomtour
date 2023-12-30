@@ -6,10 +6,10 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Reservation } from './reservation.entity';
+import { ReservationEntity } from './reservation.entity';
 
 @Entity('CLIENT')
-export class Client {
+export class ClientEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -19,8 +19,8 @@ export class Client {
   })
   name: string;
 
-  @OneToMany(() => Reservation, (reservation) => reservation.client)
-  reservation: Promise<Awaited<Reservation[]>>;
+  @OneToMany(() => ReservationEntity, (reservation) => reservation.client)
+  reservation: Promise<Awaited<ReservationEntity[]>>;
 
   @CreateDateColumn({
     type: 'timestamp',

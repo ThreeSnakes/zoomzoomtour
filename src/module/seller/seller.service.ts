@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Seller } from '../../infra/database/entity/seller.entity';
+import { SellerEntity } from '../../infra/database/entity/seller.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateNewSellerDto } from './dto/service/createNewSeller.dto';
@@ -7,13 +7,13 @@ import { CreateNewSellerDto } from './dto/service/createNewSeller.dto';
 @Injectable()
 export class SellerService {
   constructor(
-    @InjectRepository(Seller)
-    private readonly sellerRepository: Repository<Seller>,
+    @InjectRepository(SellerEntity)
+    private readonly sellerRepository: Repository<SellerEntity>,
   ) {
     this.sellerRepository = sellerRepository;
   }
-  async createNewSeller(dto: CreateNewSellerDto): Promise<Seller> {
-    const newSeller = new Seller();
+  async createNewSeller(dto: CreateNewSellerDto): Promise<SellerEntity> {
+    const newSeller = new SellerEntity();
     newSeller.name = dto.name;
     return this.sellerRepository.save(newSeller);
   }

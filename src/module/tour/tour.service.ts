@@ -1,20 +1,20 @@
 import { Injectable } from '@nestjs/common';
-import { Tour } from '../../infra/database/entity/tour.entity';
+import { TourEntity } from '../../infra/database/entity/tour.entity';
 import { DataSource, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateNewTourDto } from './dto/service/createNewTour.dto';
-import { Seller } from '../../infra/database/entity/seller.entity';
-import { RegularHoliday } from '../../infra/database/entity/regularHoliday.entity';
-import { Holiday } from '../../infra/database/entity/holiday.entity';
+import { SellerEntity } from '../../infra/database/entity/seller.entity';
+import { RegularHolidayEntity } from '../../infra/database/entity/regularHoliday.entity';
+import { HolidayEntity } from '../../infra/database/entity/holiday.entity';
 
 @Injectable()
 export class TourService {
   constructor(
     private readonly dataSource: DataSource,
-    @InjectRepository(Tour)
-    private readonly tourRepository: Repository<Tour>,
-    @InjectRepository(Seller)
-    private readonly sellerRepository: Repository<Seller>,
+    @InjectRepository(TourEntity)
+    private readonly tourRepository: Repository<TourEntity>,
+    @InjectRepository(SellerEntity)
+    private readonly sellerRepository: Repository<SellerEntity>,
   ) {
     this.tourRepository = tourRepository;
   }
@@ -32,7 +32,7 @@ export class TourService {
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
-      const newTour = new Tour();
+      const newTour = new TourEntity();
       newTour.name = dto.tourName;
       newTour.description = dto.tourDescription;
       newTour.seller = Promise.resolve(seller);
@@ -40,7 +40,7 @@ export class TourService {
 
       const regularHolidayList =
         dto.tourRegularHoliday?.map((regularHoliday) => {
-          const newRegularHoliday = new RegularHoliday();
+          const newRegularHoliday = new RegularHolidayEntity();
           newRegularHoliday.tour = Promise.resolve(tourResult);
           newRegularHoliday.day = regularHoliday;
           return newRegularHoliday;
@@ -49,7 +49,7 @@ export class TourService {
 
       const holidayList =
         dto.tourHoliday?.map((holiday) => {
-          const newHoliday = new Holiday();
+          const newHoliday = new HolidayEntity();
           newHoliday.tour = Promise.resolve(tourResult);
           newHoliday.date = holiday;
           return newHoliday;

@@ -4,14 +4,14 @@ import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CacheModule } from '@nestjs/cache-manager';
-import { Seller } from './infra/database/entity/seller.entity';
+import { SellerEntity } from './infra/database/entity/seller.entity';
 import { SellerModule } from './module/seller/seller.module';
-import { Tour } from './infra/database/entity/tour.entity';
+import { TourEntity } from './infra/database/entity/tour.entity';
 import { TourModule } from './module/tour/tour.module';
-import { RegularHoliday } from './infra/database/entity/regularHoliday.entity';
-import { Holiday } from './infra/database/entity/holiday.entity';
-import { Client } from './infra/database/entity/client.entity';
-import { Reservation } from './infra/database/entity/reservation.entity';
+import { RegularHolidayEntity } from './infra/database/entity/regularHoliday.entity';
+import { HolidayEntity } from './infra/database/entity/holiday.entity';
+import { ClientEntity } from './infra/database/entity/client.entity';
+import { ReservationEntity } from './infra/database/entity/reservation.entity';
 import { ClientModule } from './module/client/client.module';
 import { ReservationModule } from './module/reservation/reservation.module';
 
@@ -32,7 +32,14 @@ const isDev = process.env.NODE_ENV !== 'production';
         username: configService.get('DATABASE_USER_NAME'),
         password: configService.get('DATABASE_PASSWORD'),
         database: configService.get('DATABASE_DB'),
-        entities: [Seller, Tour, RegularHoliday, Holiday, Client, Reservation],
+        entities: [
+          SellerEntity,
+          TourEntity,
+          RegularHolidayEntity,
+          HolidayEntity,
+          ClientEntity,
+          ReservationEntity,
+        ],
         synchronize: isDev,
       }),
       inject: [ConfigService],

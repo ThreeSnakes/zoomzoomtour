@@ -6,10 +6,10 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Tour } from './tour.entity';
+import { TourEntity } from './tour.entity';
 
 @Entity('SELLER')
-export class Seller {
+export class SellerEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -19,8 +19,8 @@ export class Seller {
   })
   name: string;
 
-  @OneToMany(() => Tour, (tour) => tour.id)
-  tours: Promise<Tour[]>;
+  @OneToMany(() => TourEntity, (tour) => tour.id)
+  tours: Promise<TourEntity[]>;
 
   @CreateDateColumn({
     type: 'timestamp',

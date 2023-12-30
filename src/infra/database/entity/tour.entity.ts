@@ -8,21 +8,21 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Seller } from './seller.entity';
-import { RegularHoliday } from './regularHoliday.entity';
-import { Holiday } from './holiday.entity';
-import { Reservation } from './reservation.entity';
+import { SellerEntity } from './seller.entity';
+import { RegularHolidayEntity } from './regularHoliday.entity';
+import { HolidayEntity } from './holiday.entity';
+import { ReservationEntity } from './reservation.entity';
 
 @Entity('TOUR')
-export class Tour {
+export class TourEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Seller, (seller) => seller.tours)
+  @ManyToOne(() => SellerEntity, (seller) => seller.tours)
   @JoinColumn({
     name: 'seller_id',
   })
-  seller?: Promise<Seller>;
+  seller?: Promise<SellerEntity>;
 
   @Column({
     length: 100,
@@ -36,14 +36,14 @@ export class Tour {
   })
   description: string;
 
-  @OneToMany(() => RegularHoliday, (regularHoliday) => regularHoliday.id)
-  regularHoliday?: Promise<Awaited<RegularHoliday[]>>;
+  @OneToMany(() => RegularHolidayEntity, (regularHoliday) => regularHoliday.id)
+  regularHoliday?: Promise<Awaited<RegularHolidayEntity[]>>;
 
-  @OneToMany(() => Holiday, (holiday) => holiday.id)
-  holiday?: Promise<Awaited<Holiday[]>>;
+  @OneToMany(() => HolidayEntity, (holiday) => holiday.id)
+  holiday?: Promise<Awaited<HolidayEntity[]>>;
 
-  @OneToMany(() => Reservation, (reservation) => reservation.tour)
-  reservation: Promise<Awaited<Reservation[]>>;
+  @OneToMany(() => ReservationEntity, (reservation) => reservation.tour)
+  reservation: Promise<Awaited<ReservationEntity[]>>;
 
   @CreateDateColumn({
     type: 'timestamp',

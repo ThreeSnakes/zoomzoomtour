@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource, Repository } from 'typeorm';
 import {
-  Reservation,
+  ReservationEntity,
   RESERVATION_STATE,
 } from '../../infra/database/entity/reservation.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateNewReservationDto } from './dto/service/createNewReservation.dto';
-import { Client } from '../../infra/database/entity/client.entity';
-import { Tour } from '../../infra/database/entity/tour.entity';
+import { ClientEntity } from '../../infra/database/entity/client.entity';
+import { TourEntity } from '../../infra/database/entity/tour.entity';
 import { ApproveWaitReservationDto } from './dto/service/approveWaitReservation.dto';
 import * as dayjs from 'dayjs';
 
@@ -15,12 +15,12 @@ import * as dayjs from 'dayjs';
 export class ReservationService {
   constructor(
     private readonly dataSource: DataSource,
-    @InjectRepository(Reservation)
-    private readonly reservationRepository: Repository<Reservation>,
-    @InjectRepository(Client)
-    private readonly clientRepository: Repository<Client>,
-    @InjectRepository(Tour)
-    private readonly tourRepository: Repository<Tour>,
+    @InjectRepository(ReservationEntity)
+    private readonly reservationRepository: Repository<ReservationEntity>,
+    @InjectRepository(ClientEntity)
+    private readonly clientRepository: Repository<ClientEntity>,
+    @InjectRepository(TourEntity)
+    private readonly tourRepository: Repository<TourEntity>,
   ) {
     this.reservationRepository = reservationRepository;
     this.clientRepository = clientRepository;
@@ -29,16 +29,16 @@ export class ReservationService {
 
   async createNewReservation(
     createNewReservationDto: CreateNewReservationDto,
-  ): Promise<Reservation> {
+  ): Promise<ReservationEntity> {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
       const [client, tour] = await Promise.all([
-        this.dataSource.manager.findOneBy(Client, {
+        this.dataSource.manager.findOneBy(ClientEntity, {
           id: createNewReservationDto.clientId,
         }),
-        this.dataSource.manager.findOneBy(Tour, {
+        this.dataSource.manager.findOneBy(TourEntity, {
           id: createNewReservationDto.tourId,
         }),
       ]);
@@ -53,14 +53,14 @@ export class ReservationService {
         );
       }
 
-      const newReservation = new Reservation();
+      const newReservation = new ReservationEntity();
       newReservation.client = Promise.resolve(client);
       newReservation.tour = Promise.resolve(tour);
       newReservation.date = dayjs(createNewReservationDto.date).format(
         'YYYY-MM-DD',
       );
       const targetDateReservationCnt = await this.dataSource.manager.countBy(
-        Reservation,
+        ReservationEntity,
         {
           date: dayjs(createNewReservationDto.date).format('YYYY-MM-DD'),
           tour: {
@@ -91,9 +91,12 @@ export class ReservationService {
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
-      const reservation = await this.dataSource.manager.findOneBy(Reservation, {
-        token: approveWaitReservationDto.token,
-      });
+      const reservation = await this.dataSource.manager.findOneBy(
+        ReservationEntity,
+        {
+          token: approveWaitReservationDto.token,
+        },
+      );
 
       if (!reservation) {
         throw new Error(

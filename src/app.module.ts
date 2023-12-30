@@ -13,6 +13,7 @@ import { Holiday } from './infra/database/entity/holiday.entity';
 import { Client } from './infra/database/entity/client.entity';
 import { Reservation } from './infra/database/entity/reservation.entity';
 import { ClientModule } from './module/client/client.module';
+import { ReservationModule } from './module/reservation/reservation.module';
 
 const isDev = process.env.NODE_ENV !== 'production';
 
@@ -48,6 +49,7 @@ const isDev = process.env.NODE_ENV !== 'production';
     SellerModule,
     TourModule,
     ClientModule,
+    ReservationModule,
   ],
   controllers: [AppController],
   providers: [AppService],

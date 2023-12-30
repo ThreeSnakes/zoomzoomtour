@@ -42,7 +42,7 @@ export class Tour {
   @OneToMany(() => Holiday, (holiday) => holiday.id)
   holiday?: Promise<Awaited<Holiday[]>>;
 
-  @OneToMany(() => Reservation, (reservation) => reservation.id)
+  @OneToMany(() => Reservation, (reservation) => reservation.tour)
   reservation: Promise<Awaited<Reservation[]>>;
 
   @CreateDateColumn({

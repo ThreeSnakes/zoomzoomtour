@@ -8,6 +8,11 @@ import {
 import { Client } from './client.entity';
 import { Tour } from './tour.entity';
 
+export enum RESERVATION_STATE {
+  WAIT = 0, // 대기
+  APPROVE = 1, // 승인
+}
+
 @Entity('RESERVATION')
 export class Reservation {
   @PrimaryGeneratedColumn()
@@ -17,14 +22,16 @@ export class Reservation {
   @JoinColumn({
     name: 'client_id',
   })
-  client?: Promise<Client>;
+  client?: Promise<Awaited<Client>>;
 
   @ManyToOne(() => Tour, (tour) => tour.id)
   @JoinColumn({
     name: 'tour_id',
   })
-  tour?: Promise<Tour>;
+  tour?: Promise<Awaited<Tour>>;
 
-  @Column({ length: 10 })
-  state: string;
+  @Column({
+    default: RESERVATION_STATE.WAIT,
+  })
+  state: RESERVATION_STATE;
 }

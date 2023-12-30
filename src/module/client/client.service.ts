@@ -1,7 +1,9 @@
 import { ClientEntity } from '../../infra/database/entity/client.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CreateNewClientDto } from './dto/service/createNewClient.dto';
+import { CreateNewClientRequestDto } from './dto/service/createNewClientRequest.dto';
+import { Client } from './client.domain';
+import { createNewClientResponseDto } from './dto/service/createNewClientResponse.dto';
 
 export class ClientService {
   constructor(
@@ -12,10 +14,15 @@ export class ClientService {
   }
 
   async createNewClient(
-    createNewClientDto: CreateNewClientDto,
-  ): Promise<ClientEntity> {
-    const newClient = new ClientEntity();
-    newClient.name = createNewClientDto.name;
-    return this.clientRepository.save(newClient);
+    createNewClientDto: CreateNewClientRequestDto,
+  ): Promise<createNewClientResponseDto> {
+    const clientDomain = new Client({
+      name: createNewClientDto.name,
+    });
+    const result = await this.clientRepository.save(clientDomain.toEntity());
+
+    return {
+      client: Client.createFromEntity(result),
+    };
   }
 }

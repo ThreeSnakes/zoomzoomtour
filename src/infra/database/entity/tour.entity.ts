@@ -4,15 +4,24 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { Seller } from './seller.entity';
+import { RegularHoliday } from './regularHoliday.entity';
+import { Holiday } from './holiday.entity';
 
 @Entity('TOUR')
 export class Tour {
   @PrimaryGeneratedColumn()
   id: number;
+
+  @ManyToOne(() => Seller, (seller) => seller.tours)
+  @JoinColumn({
+    name: 'seller_id',
+  })
+  seller?: Promise<Seller>;
 
   @Column({
     length: 100,
@@ -26,9 +35,11 @@ export class Tour {
   })
   description: string;
 
-  @ManyToOne(() => Seller, (seller) => seller.tours)
-  @JoinColumn({ name: 'seller_id' })
-  seller?: Promise<Seller>;
+  @OneToMany(() => RegularHoliday, (regularHoliday) => regularHoliday.id)
+  regularHoliday?: Promise<Awaited<RegularHoliday[]>>;
+
+  @OneToMany(() => Holiday, (holiday) => holiday.id)
+  holiday?: Promise<Awaited<Holiday[]>>;
 
   @CreateDateColumn({
     type: 'timestamp',

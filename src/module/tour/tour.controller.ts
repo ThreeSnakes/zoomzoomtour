@@ -17,6 +17,8 @@ export class TourController {
       clientId: createTourDto.client_id,
       tourName: createTourDto.name,
       tourDescription: createTourDto.description,
+      tourRegularHoliday: createTourDto.regularHoliday,
+      tourHoliday: createTourDto.holiday,
     });
   }
 }

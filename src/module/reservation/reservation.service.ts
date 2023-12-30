@@ -8,6 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CreateNewReservationDto } from './dto/service/createNewReservation.dto';
 import { Client } from '../../infra/database/entity/client.entity';
 import { Tour } from '../../infra/database/entity/tour.entity';
+import { ApproveWaitReservationDto } from './dto/service/approveWaitReservation.dto';
 
 @Injectable()
 export class ReservationService {
@@ -65,6 +66,46 @@ export class ReservationService {
     } catch (e) {
       await queryRunner.rollbackTransaction();
       throw e;
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  async apporveWaitReservation(
+    approveWaitReservationDto: ApproveWaitReservationDto,
+  ) {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      const reservation = await this.dataSource.manager.findOneBy(Reservation, {
+        token: approveWaitReservationDto.token,
+      });
+
+      if (!reservation) {
+        throw new Error(
+          `reservation(${approveWaitReservationDto.token} is not exist.`,
+        );
+      }
+
+      const tour = await Promise.resolve(reservation.tour);
+      const seller = await Promise.resolve(tour.seller);
+
+      if (seller.id !== approveWaitReservationDto.sellerId) {
+        throw new Error(`invalid request`);
+      }
+
+      reservation.state = RESERVATION_STATE.APPROVE;
+
+      await queryRunner.manager.save(reservation);
+      await queryRunner.commitTransaction();
+
+      return reservation;
+    } catch (e) {
+      await queryRunner.rollbackTransaction();
+      throw e;
+    } finally {
+      await queryRunner.release();
     }
   }
 }

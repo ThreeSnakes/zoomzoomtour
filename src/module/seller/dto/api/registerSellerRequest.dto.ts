@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, MaxLength, MinLength } from 'class-validator';
 
-export class RegisterSellerDto {
+export class RegisterSellerRequestDto {
   @ApiProperty({
     description: 'Seller name',
     minLength: 1,

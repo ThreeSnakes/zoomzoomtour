@@ -22,7 +22,7 @@ export class TourEntity {
   @JoinColumn({
     name: 'seller_id',
   })
-  seller?: Promise<SellerEntity>;
+  seller?: Promise<Awaited<SellerEntity>>;
 
   @Column({
     length: 100,

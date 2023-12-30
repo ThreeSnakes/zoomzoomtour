@@ -8,7 +8,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { TourEntity } from './tour.entity';
-import { DAY_OF_WEEK } from '../../../module/tour/dto/api/CreateTour.dto';
+import { DAY_OF_WEEK } from '../../../module/tour/domain/regularHoliday.domain';
 
 @Entity('REGULAR_HOLIDAY')
 export class RegularHolidayEntity {

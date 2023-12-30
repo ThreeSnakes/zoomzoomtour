@@ -7,41 +7,32 @@ import {
   Min,
   MinLength,
 } from 'class-validator';
+import { DAY_OF_WEEK } from '../../domain/regularHoliday.domain';
 
-export enum DAY_OF_WEEK {
-  'SUN' = 'SUN',
-  'MON' = 'MON',
-  'TUE' = 'TUE',
-  'WED' = 'WED',
-  'THU' = 'THU',
-  'FRI' = 'FRI',
-  'SAT' = 'SAT',
-}
-
-export class CreateTourDto {
+export class CreateTourRequestDto {
   @ApiProperty({
-    description: 'clientId',
+    description: 'Seller ID',
   })
   @Min(1)
   @IsNumber()
-  client_id: number;
+  sellerId: number;
 
   @ApiProperty({
     description: 'tour name',
-    minLength: 0,
+    minLength: 5,
     maxLength: 100,
   })
-  @MinLength(1)
+  @MinLength(5)
   @MaxLength(100)
   @IsString()
   name: string;
 
   @ApiProperty({
     description: 'tour description',
-    minLength: 0,
+    minLength: 5,
     maxLength: 200,
   })
-  @MinLength(1)
+  @MinLength(5)
   @MaxLength(200)
   @IsString()
   description: string;

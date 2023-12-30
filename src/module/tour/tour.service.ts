@@ -2,10 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { TourEntity } from '../../infra/database/entity/tour.entity';
 import { DataSource, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CreateNewTourDto } from './dto/service/createNewTour.dto';
+import { CreateNewTourRequestDto } from './dto/service/createNewTourRequest.dto';
 import { SellerEntity } from '../../infra/database/entity/seller.entity';
-import { RegularHolidayEntity } from '../../infra/database/entity/regularHoliday.entity';
-import { HolidayEntity } from '../../infra/database/entity/holiday.entity';
+import { Tour } from './domain/tour.domain';
+import { RegularHoliday } from './domain/regularHoliday.domain';
+import { Holiday } from './domain/holiday.domain';
+import { CreateNewTourResponseDto } from './dto/service/createNewTourResponse.dto';
 
 @Injectable()
 export class TourService {
@@ -19,46 +21,60 @@ export class TourService {
     this.tourRepository = tourRepository;
   }
 
-  async createNewTour(dto: CreateNewTourDto): Promise<void> {
+  async createNewTour(
+    createNewTourRequestDto: CreateNewTourRequestDto,
+  ): Promise<CreateNewTourResponseDto> {
     const seller = await this.sellerRepository.findOneBy({
-      id: dto.clientId,
+      id: createNewTourRequestDto.sellerId,
     });
 
     if (!seller) {
-      throw new Error(`seller(${dto.clientId}) is not exist.`);
+      throw new Error(
+        `seller(${createNewTourRequestDto.sellerId}) is not exist.`,
+      );
     }
 
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
-      const newTour = new TourEntity();
-      newTour.name = dto.tourName;
-      newTour.description = dto.tourDescription;
-      newTour.seller = Promise.resolve(seller);
-      const tourResult = await queryRunner.manager.save(newTour);
+      const newTour = new Tour({
+        name: createNewTourRequestDto.tourName,
+        description: createNewTourRequestDto.tourDescription,
+        seller: Promise.resolve(seller),
+      });
+      const tourResult = await queryRunner.manager.save(newTour.toEntity());
 
-      const regularHolidayList =
-        dto.tourRegularHoliday?.map((regularHoliday) => {
-          const newRegularHoliday = new RegularHolidayEntity();
-          newRegularHoliday.tour = Promise.resolve(tourResult);
-          newRegularHoliday.day = regularHoliday;
-          return newRegularHoliday;
+      const regularHolidayEntities =
+        createNewTourRequestDto.tourRegularHoliday?.map((regularHoliday) => {
+          const newRegularHoliday = new RegularHoliday({
+            tour: Promise.resolve(tourResult),
+            day: regularHoliday,
+          });
+          return newRegularHoliday.toEntity();
         }) || [];
-      await queryRunner.manager.save(regularHolidayList);
+      await queryRunner.manager.save(regularHolidayEntities);
+      tourResult.regularHoliday = Promise.resolve(regularHolidayEntities);
 
-      const holidayList =
-        dto.tourHoliday?.map((holiday) => {
-          const newHoliday = new HolidayEntity();
-          newHoliday.tour = Promise.resolve(tourResult);
-          newHoliday.date = holiday;
-          return newHoliday;
+      const holidayEntities =
+        createNewTourRequestDto.tourHoliday?.map((holiday) => {
+          const newHoliday = new Holiday({
+            tour: Promise.resolve(tourResult),
+            date: holiday,
+          });
+          return newHoliday.toEntity();
         }) || [];
-      await queryRunner.manager.save(holidayList);
+      await queryRunner.manager.save(holidayEntities);
+      tourResult.holiday = Promise.resolve(holidayEntities);
 
       await queryRunner.commitTransaction();
+
+      return {
+        tour: Tour.createFromEntity(tourResult),
+      };
     } catch (e) {
       await queryRunner.rollbackTransaction();
+      throw e;
     } finally {
       await queryRunner.release();
     }

@@ -37,6 +37,11 @@ export class Reservation {
   })
   state: RESERVATION_STATE;
 
+  @Column({
+    nullable: false,
+  })
+  date: string;
+
   @CreateDateColumn({
     type: 'timestamp',
     precision: 0,

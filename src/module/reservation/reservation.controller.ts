@@ -19,6 +19,7 @@ export class ReservationController {
     return this.reservationService.createNewReservation({
       clientId: makeNewReservationDto.clientId,
       tourId: makeNewReservationDto.tourId,
+      date: makeNewReservationDto.date,
     });
   }
 
@@ -31,7 +32,7 @@ export class ReservationController {
     @Param('token') token: string,
     @Body() approveReservationDto: ApproveReservationDto,
   ) {
-    return this.reservationService.apporveWaitReservation({
+    return this.reservationService.approveWaitReservation({
       sellerId: approveReservationDto.sellerId,
       token,
     });

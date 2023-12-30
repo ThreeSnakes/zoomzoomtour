@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber } from 'class-validator';
+import { IsNumber, IsString } from 'class-validator';
 
 export class MakeNewReservationDto {
   @ApiProperty({
@@ -15,4 +15,10 @@ export class MakeNewReservationDto {
   })
   @IsNumber()
   tourId: number;
+
+  @ApiProperty({
+    description: '예약 날짜, YYYY-MM-DD 형태로 전송',
+  })
+  @IsString()
+  date: string;
 }

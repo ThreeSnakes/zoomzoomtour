@@ -9,6 +9,7 @@ import { CreateNewReservationDto } from './dto/service/createNewReservation.dto'
 import { Client } from '../../infra/database/entity/client.entity';
 import { Tour } from '../../infra/database/entity/tour.entity';
 import { ApproveWaitReservationDto } from './dto/service/approveWaitReservation.dto';
+import * as dayjs from 'dayjs';
 
 @Injectable()
 export class ReservationService {
@@ -55,9 +56,21 @@ export class ReservationService {
       const newReservation = new Reservation();
       newReservation.client = Promise.resolve(client);
       newReservation.tour = Promise.resolve(tour);
-      const orgReservations = await Promise.resolve(tour.reservation);
+      newReservation.date = dayjs(createNewReservationDto.date).format(
+        'YYYY-MM-DD',
+      );
+      const targetDateReservationCnt = await this.dataSource.manager.countBy(
+        Reservation,
+        {
+          date: dayjs(createNewReservationDto.date).format('YYYY-MM-DD'),
+          tour: {
+            id: tour.id,
+          },
+        },
+      );
+      console.log(`targetDateReservationCnt => `, targetDateReservationCnt);
       newReservation.state =
-        orgReservations.length > 5
+        targetDateReservationCnt > 5
           ? RESERVATION_STATE.WAIT
           : RESERVATION_STATE.APPROVE;
       await queryRunner.manager.save(newReservation);
@@ -71,7 +84,7 @@ export class ReservationService {
     }
   }
 
-  async apporveWaitReservation(
+  async approveWaitReservation(
     approveWaitReservationDto: ApproveWaitReservationDto,
   ) {
     const queryRunner = this.dataSource.createQueryRunner();

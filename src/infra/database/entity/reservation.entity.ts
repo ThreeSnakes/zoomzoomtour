@@ -1,9 +1,11 @@
 import {
   Column,
+  CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { Client } from './client.entity';
 import { Tour } from './tour.entity';
@@ -34,4 +36,19 @@ export class Reservation {
     default: RESERVATION_STATE.WAIT,
   })
   state: RESERVATION_STATE;
+
+  @CreateDateColumn({
+    type: 'timestamp',
+    precision: 0,
+    default: () => 'CURRENT_TIMESTAMP(0)',
+  })
+  ctime: Date;
+
+  @UpdateDateColumn({
+    type: 'timestamp',
+    precision: 0,
+    default: () => 'CURRENT_TIMESTAMP(0)',
+    onUpdate: 'CURRENT_TIMESTAMP(0)',
+  })
+  mtime: Date;
 }

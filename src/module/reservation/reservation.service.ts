@@ -1,15 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource, Repository } from 'typeorm';
-import {
-  ReservationEntity,
-  RESERVATION_STATE,
-} from '../../infra/database/entity/reservation.entity';
+import { ReservationEntity } from '../../infra/database/entity/reservation.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CreateNewReservationDto } from './dto/service/createNewReservation.dto';
+import { CreateNewReservationRequestDto } from './dto/service/createNewReservationRequest.dto';
 import { ClientEntity } from '../../infra/database/entity/client.entity';
 import { TourEntity } from '../../infra/database/entity/tour.entity';
-import { ApproveWaitReservationDto } from './dto/service/approveWaitReservation.dto';
+import { ApproveWaitReservationRequestDto } from './dto/service/approveWaitReservationRequest.dto';
 import * as dayjs from 'dayjs';
+import { Reservation, RESERVATION_STATE } from './domain/reservation.domain';
+import { CreateNewReservationResponseDto } from './dto/service/createNewReservationResponse.dto';
+import { ApproveWaitReservationResponseDto } from './dto/service/approveWaitReservationResponse.dto';
 
 @Injectable()
 export class ReservationService {
@@ -28,8 +28,8 @@ export class ReservationService {
   }
 
   async createNewReservation(
-    createNewReservationDto: CreateNewReservationDto,
-  ): Promise<ReservationEntity> {
+    createNewReservationDto: CreateNewReservationRequestDto,
+  ): Promise<CreateNewReservationResponseDto> {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -53,12 +53,6 @@ export class ReservationService {
         );
       }
 
-      const newReservation = new ReservationEntity();
-      newReservation.client = Promise.resolve(client);
-      newReservation.tour = Promise.resolve(tour);
-      newReservation.date = dayjs(createNewReservationDto.date).format(
-        'YYYY-MM-DD',
-      );
       const targetDateReservationCnt = await this.dataSource.manager.countBy(
         ReservationEntity,
         {
@@ -68,14 +62,22 @@ export class ReservationService {
           },
         },
       );
-      console.log(`targetDateReservationCnt => `, targetDateReservationCnt);
-      newReservation.state =
-        targetDateReservationCnt > 5
-          ? RESERVATION_STATE.WAIT
-          : RESERVATION_STATE.APPROVE;
-      await queryRunner.manager.save(newReservation);
+
+      const newReservation = new Reservation({
+        client: Promise.resolve(client),
+        tour: Promise.resolve(tour),
+        date: createNewReservationDto.date,
+        state:
+          targetDateReservationCnt > 5
+            ? RESERVATION_STATE.WAIT
+            : RESERVATION_STATE.APPROVE,
+      });
+      const result = await queryRunner.manager.save(newReservation.toEntity());
       await queryRunner.commitTransaction();
-      return newReservation;
+
+      return {
+        reservation: Reservation.createFromEntity(result),
+      };
     } catch (e) {
       await queryRunner.rollbackTransaction();
       throw e;
@@ -85,17 +87,16 @@ export class ReservationService {
   }
 
   async approveWaitReservation(
-    approveWaitReservationDto: ApproveWaitReservationDto,
-  ) {
+    approveWaitReservationDto: ApproveWaitReservationRequestDto,
+  ): Promise<ApproveWaitReservationResponseDto> {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
-      const reservation = await this.dataSource.manager.findOneBy(
-        ReservationEntity,
-        {
+      const reservation = Reservation.createFromEntity(
+        await this.dataSource.manager.findOneBy(ReservationEntity, {
           token: approveWaitReservationDto.token,
-        },
+        }),
       );
 
       if (!reservation) {
@@ -104,8 +105,8 @@ export class ReservationService {
         );
       }
 
-      const tour = await Promise.resolve(reservation.tour);
-      const seller = await Promise.resolve(tour.seller);
+      const tour = await reservation.tour();
+      const seller = await tour.seller();
 
       if (seller.id !== approveWaitReservationDto.sellerId) {
         throw new Error(`invalid request`);
@@ -113,10 +114,12 @@ export class ReservationService {
 
       reservation.state = RESERVATION_STATE.APPROVE;
 
-      await queryRunner.manager.save(reservation);
+      const result = await queryRunner.manager.save(reservation.toEntity());
       await queryRunner.commitTransaction();
 
-      return reservation;
+      return {
+        reservation: Reservation.createFromEntity(result),
+      };
     } catch (e) {
       await queryRunner.rollbackTransaction();
       throw e;

@@ -44,7 +44,7 @@ export class Seller {
     return this._name;
   }
 
-  toEntiy(): SellerEntity {
+  toEntity(): SellerEntity {
     const entity = new SellerEntity();
     entity.id = this._id;
     entity.name = this._name;

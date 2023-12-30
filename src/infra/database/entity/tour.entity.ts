@@ -36,10 +36,13 @@ export class TourEntity {
   })
   description: string;
 
-  @OneToMany(() => RegularHolidayEntity, (regularHoliday) => regularHoliday.id)
+  @OneToMany(
+    () => RegularHolidayEntity,
+    (regularHoliday) => regularHoliday.tour,
+  )
   regularHoliday?: Promise<Awaited<RegularHolidayEntity[]>>;
 
-  @OneToMany(() => HolidayEntity, (holiday) => holiday.id)
+  @OneToMany(() => HolidayEntity, (holiday) => holiday.tour)
   holiday?: Promise<Awaited<HolidayEntity[]>>;
 
   @OneToMany(() => ReservationEntity, (reservation) => reservation.tour)

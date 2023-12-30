@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNumber, IsString } from 'class-validator';
 
-export class MakeNewReservationDto {
+export class MakeNewReservationRequestDto {
   @ApiProperty({
     description: 'Client ID, CLIENT의 ID 값',
     minimum: 0,

@@ -9,11 +9,7 @@ import {
 } from 'typeorm';
 import { ClientEntity } from './client.entity';
 import { TourEntity } from './tour.entity';
-
-export enum RESERVATION_STATE {
-  WAIT = 0, // 대기
-  APPROVE = 1, // 승인,
-}
+import { RESERVATION_STATE } from '../../../module/reservation/domain/reservation.domain';
 
 @Entity('RESERVATION')
 export class ReservationEntity {

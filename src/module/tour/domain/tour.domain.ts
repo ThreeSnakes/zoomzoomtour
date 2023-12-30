@@ -5,6 +5,7 @@ import { RegularHolidayEntity } from '../../../infra/database/entity/regularHoli
 import { HolidayEntity } from '../../../infra/database/entity/holiday.entity';
 import { RegularHoliday } from './regularHoliday.domain';
 import { Holiday } from './holiday.domain';
+import { Seller } from '../../seller/seller.domain';
 
 type PARAM = {
   id?: number;
@@ -84,6 +85,12 @@ export class Tour {
 
   get description() {
     return this._description;
+  }
+
+  async seller() {
+    const sellerEntity = await Promise.resolve(this._seller);
+
+    return Seller.createFromEntity(sellerEntity);
   }
 
   async regularHolidays() {

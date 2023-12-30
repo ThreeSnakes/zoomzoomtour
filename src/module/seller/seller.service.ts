@@ -20,7 +20,7 @@ export class SellerService {
     const newSeller = new Seller({
       name: dto.name,
     });
-    const result = await this.sellerRepository.save(newSeller.toEntiy());
+    const result = await this.sellerRepository.save(newSeller.toEntity());
 
     return {
       seller: Seller.createFromEntity(result),

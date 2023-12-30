@@ -10,6 +10,8 @@ import { Tour } from './infra/database/entity/tour.entity';
 import { TourModule } from './module/tour/tour.module';
 import { RegularHoliday } from './infra/database/entity/regularHoliday.entity';
 import { Holiday } from './infra/database/entity/holiday.entity';
+import { Client } from './infra/database/entity/client.entity';
+import { Reservation } from './infra/database/entity/reservation.entity';
 
 const isDev = process.env.NODE_ENV !== 'production';
 
@@ -28,7 +30,7 @@ const isDev = process.env.NODE_ENV !== 'production';
         username: configService.get('DATABASE_USER_NAME'),
         password: configService.get('DATABASE_PASSWORD'),
         database: configService.get('DATABASE_DB'),
-        entities: [Seller, Tour, RegularHoliday, Holiday],
+        entities: [Seller, Tour, RegularHoliday, Holiday, Client, Reservation],
         synchronize: isDev,
       }),
       inject: [ConfigService],

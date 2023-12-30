@@ -19,7 +19,7 @@ export class Client {
   })
   name: string;
 
-  @OneToMany(() => Reservation, (reservation) => reservation.id)
+  @OneToMany(() => Reservation, (reservation) => reservation.client)
   reservation: Promise<Awaited<Reservation[]>>;
 
   @CreateDateColumn({

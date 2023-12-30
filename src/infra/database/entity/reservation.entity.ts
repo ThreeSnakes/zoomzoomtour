@@ -10,13 +10,13 @@ import { Tour } from './tour.entity';
 
 export enum RESERVATION_STATE {
   WAIT = 0, // 대기
-  APPROVE = 1, // 승인
+  APPROVE = 1, // 승인,
 }
 
 @Entity('RESERVATION')
 export class Reservation {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  token: string;
 
   @ManyToOne(() => Client, (client) => client.id)
   @JoinColumn({

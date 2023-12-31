@@ -8,6 +8,10 @@ export class RedisService {
     private readonly _redisClient: Redis,
   ) {}
 
+  async hmset(key: string, value: Object) {
+    return this.redisClient.hmset(key, value);
+  }
+
   async set(key: string, value: string): Promise<string> {
     return this.redisClient.set(key, value);
   }

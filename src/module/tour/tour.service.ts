@@ -11,6 +11,7 @@ import { Holiday } from './domain/holiday.domain';
 import { CreateNewTourResponseDto } from './dto/service/createNewTourResponse.dto';
 import { FetchTourCalendarDto } from './dto/service/fetchTourCalendar.dto';
 import { RedisWarpperService } from '../redisWarpper/redisWarpper.service';
+import { DayjsHelperService } from '../helper/dayjsHelper/dayjsHelper.service';
 
 @Injectable()
 export class TourService {
@@ -21,6 +22,7 @@ export class TourService {
     @InjectRepository(SellerEntity)
     private readonly sellerRepository: Repository<SellerEntity>,
     private readonly redisWrapperService: RedisWarpperService,
+    private readonly dayjsHelperService: DayjsHelperService,
   ) {
     this.tourRepository = tourRepository;
   }
@@ -71,10 +73,25 @@ export class TourService {
       await queryRunner.manager.save(holidayEntities);
       tourResult.holiday = Promise.resolve(holidayEntities);
 
+      const tour = Tour.createFromEntity(tourResult);
       await queryRunner.commitTransaction();
 
+      // 해당월부터 3개월치의 예약 가능한 날짜 캐시를 만들어 놓는다.
+      const dateRange = this.dayjsHelperService.makeDateRange(
+        dayjs(),
+        dayjs().add(3, 'month'),
+        'month',
+      );
+      for (const day of dateRange) {
+        await this.redisWrapperService.makeTourReservationCache(
+          tour,
+          day.year(),
+          day.month(),
+        );
+      }
+
       return {
-        tour: Tour.createFromEntity(tourResult),
+        tour,
       };
     } catch (e) {
       await queryRunner.rollbackTransaction();

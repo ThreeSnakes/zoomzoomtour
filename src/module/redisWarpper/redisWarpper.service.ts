@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { RedisService } from '../../infra/redis/redis.service';
 import { FetchReservationCacheDto } from './dto/service/fetchReservationCache.dto';
 import { SaveReservationCacheDto } from './dto/service/saveReservationCache.dto';
+import { Tour } from '../tour/domain/tour.domain';
 
 @Injectable()
 export class RedisWarpperService {
@@ -27,6 +28,28 @@ export class RedisWarpperService {
       yearMonth,
       JSON.stringify(parsedCache),
     );
+    return;
+  }
+
+  async makeTourReservationCache(tour: Tour, year: number, month: number) {
+    const targetDate = dayjs()
+      .year(year)
+      .month(month - 1);
+    const lastDay = targetDate.endOf('month').get('date');
+
+    const key = `${tour.id}|${targetDate.format('YYYY-MM')}`;
+
+    const result = {};
+    for (let i = 1; i <= lastDay; i += 1) {
+      const date = targetDate.date(i).format('YYYY-MM-DD');
+      const isTourAvailable = await tour.isValidTourDate(date);
+      if (isTourAvailable) {
+        result[i] = 5;
+      }
+    }
+
+    await this.redisService.hmset(key, result);
+
     return;
   }
 

@@ -67,10 +67,6 @@ export class Reservation {
     return this._state;
   }
 
-  set state(state: RESERVATION_STATE) {
-    this._state = state;
-  }
-
   async tour() {
     const tourEntity = await Promise.resolve(this._tour);
 

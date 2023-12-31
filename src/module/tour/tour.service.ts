@@ -107,11 +107,9 @@ export class TourService {
       .month(fetchTourCalendarDto.month - 1)
       .format('YYYY-MM');
 
-    const cache = await this.redisWrapperService.fetchReservationCache({
+    return this.redisWrapperService.fetchReservationCache({
       tourId: fetchTourCalendarDto.tourId,
       yearMonth,
     });
-
-    return JSON.parse(cache || '{}');
   }
 }

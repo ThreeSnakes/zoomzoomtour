@@ -48,9 +48,8 @@ export class RedisWarpperService {
   async fetchReservationCache(
     fetchReservationCacheDto: FetchReservationCacheDto,
   ) {
-    return this.redisService.hget(
-      `${fetchReservationCacheDto.tourId}`,
-      fetchReservationCacheDto.yearMonth,
+    return this.redisService.hgetall(
+      `${fetchReservationCacheDto.tourId}|${fetchReservationCacheDto.yearMonth}`,
     );
   }
 }

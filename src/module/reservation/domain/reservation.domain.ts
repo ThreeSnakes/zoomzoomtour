@@ -7,6 +7,7 @@ import { Tour } from '../../tour/domain/tour.domain';
 export enum RESERVATION_STATE {
   WAIT = 'WAIT', // 대기
   APPROVE = 'APPROVE', // 승인,
+  CANCEL = 'CANCEL', // 취소,
 }
 
 type PARAM = {
@@ -74,6 +75,33 @@ export class Reservation {
     const tourEntity = await Promise.resolve(this._tour);
 
     return Tour.createFromEntity(tourEntity);
+  }
+
+  public approve() {
+    if (this._state !== RESERVATION_STATE.WAIT) {
+      throw new Error('예약이 대기 상태가 아닙니다.');
+    }
+
+    this._state = RESERVATION_STATE.APPROVE;
+  }
+
+  public cancel() {
+    if (this._state !== RESERVATION_STATE.APPROVE) {
+      throw new Error('에약이 승인 상태가 아닙니다.');
+    }
+
+    const cancelAvailableDate = dayjs(this._date, 'YYYY-MM-DD')
+      .add(-3, 'days')
+      .startOf('date');
+    const today = dayjs().startOf('date');
+
+    if (cancelAvailableDate < today) {
+      throw new Error(
+        '예약을 취소 할 수 없습니다. 예약은 3일전 까지만 취소가 가능합니다.',
+      );
+    }
+
+    this._state = RESERVATION_STATE.CANCEL;
   }
 
   toEntity(): ReservationEntity {

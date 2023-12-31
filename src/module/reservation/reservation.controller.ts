@@ -1,11 +1,13 @@
 import { Body, Controller, Param, Post, Put } from '@nestjs/common';
 import { ReservationService } from './reservation.service';
 import { MakeNewReservationRequestDto } from './dto/api/makeNewReservationRequest.dto';
-import { ApiOperation } from '@nestjs/swagger';
+import { ApiOkResponse, ApiOperation } from '@nestjs/swagger';
 import { ApproveReservationRequestDto } from './dto/api/approveReservationRequest.dto';
 import { ApiCreatedResponse } from '@nestjs/swagger/dist/decorators/api-response.decorator';
 import { MakeNewReservationResponseDto } from './dto/api/makeNewReservationResponse.dto';
 import { ApproveReservationResponseDto } from './dto/api/approveReservationResponse.dto';
+import { CancelReservationRequestDto } from './dto/api/cancelReservationRequest.dto';
+import { CancelReservationResponseDto } from './dto/api/cancelReservationResponse.dto';
 
 @Controller('/v1/reservation')
 export class ReservationController {
@@ -36,10 +38,14 @@ export class ReservationController {
     };
   }
 
-  @Put('/:token')
+  @Put('/:token/approve')
   @ApiOperation({
     summary: '예약 승인 API',
-    description: '투어 대기 상태의 고객을 추가로 승인할 때 사용한다.',
+    description: '판매자가 투어 대기 상태의 고객을 추가로 승인할 때 사용한다.',
+  })
+  @ApiOkResponse({
+    description: '예약 승인 성공',
+    type: ApproveReservationResponseDto,
   })
   async approveReservation(
     @Param('token') token: string,
@@ -50,6 +56,31 @@ export class ReservationController {
         sellerId: approveReservationDto.sellerId,
         token,
       });
+
+    return {
+      tourId: (await reservation.tour()).id,
+      token: reservation.token,
+      state: reservation.state,
+    };
+  }
+
+  @Put('/:token/cancel')
+  @ApiOperation({
+    summary: '예약 취소 API',
+    description: '고객이 승인이 완료된 투어를 취소할 때 사용한다.',
+  })
+  @ApiOkResponse({
+    description: '예약 취소 성공',
+    type: CancelReservationResponseDto,
+  })
+  async cancelReservation(
+    @Param('token') token: string,
+    @Body() cancelReservationRequestDto: CancelReservationRequestDto,
+  ): Promise<CancelReservationResponseDto> {
+    const { reservation } = await this.reservationService.cancelReservation({
+      token,
+      clientId: cancelReservationRequestDto.clientId,
+    });
 
     return {
       tourId: (await reservation.tour()).id,

@@ -1,3 +1,4 @@
+import * as dayjs from 'dayjs';
 import { Injectable } from '@nestjs/common';
 import { DataSource, Repository } from 'typeorm';
 import { ReservationEntity } from '../../infra/database/entity/reservation.entity';
@@ -6,10 +7,11 @@ import { CreateNewReservationRequestDto } from './dto/service/createNewReservati
 import { ClientEntity } from '../../infra/database/entity/client.entity';
 import { TourEntity } from '../../infra/database/entity/tour.entity';
 import { ApproveWaitReservationRequestDto } from './dto/service/approveWaitReservationRequest.dto';
-import * as dayjs from 'dayjs';
 import { Reservation, RESERVATION_STATE } from './domain/reservation.domain';
 import { CreateNewReservationResponseDto } from './dto/service/createNewReservationResponse.dto';
 import { ApproveWaitReservationResponseDto } from './dto/service/approveWaitReservationResponse.dto';
+import { CancelReservationRequestDto } from './dto/service/cancelReservationRequest.dto';
+import { CancelReservationResponseDto } from './dto/service/cancelReservationResponse.dto';
 
 @Injectable()
 export class ReservationService {
@@ -93,26 +95,66 @@ export class ReservationService {
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
-      const reservation = Reservation.createFromEntity(
-        await this.dataSource.manager.findOneBy(ReservationEntity, {
+      const reservationEntity = await this.dataSource.manager.findOneBy(
+        ReservationEntity,
+        {
           token: approveWaitReservationDto.token,
-        }),
+          tour: {
+            seller: {
+              id: approveWaitReservationDto.sellerId,
+            },
+          },
+        },
       );
 
-      if (!reservation) {
+      if (!reservationEntity) {
         throw new Error(
           `reservation(${approveWaitReservationDto.token} is not exist.`,
         );
       }
+      const reservation = Reservation.createFromEntity(reservationEntity);
 
-      const tour = await reservation.tour();
-      const seller = await tour.seller();
+      reservation.approve();
 
-      if (seller.id !== approveWaitReservationDto.sellerId) {
-        throw new Error(`invalid request`);
+      const result = await queryRunner.manager.save(reservation.toEntity());
+      await queryRunner.commitTransaction();
+
+      return {
+        reservation: Reservation.createFromEntity(result),
+      };
+    } catch (e) {
+      await queryRunner.rollbackTransaction();
+      throw e;
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  async cancelReservation(
+    cancelReservationRequestDto: CancelReservationRequestDto,
+  ): Promise<CancelReservationResponseDto> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      const reservationEntity = await this.dataSource.manager.findOneBy(
+        ReservationEntity,
+        {
+          token: cancelReservationRequestDto.token,
+          client: {
+            id: cancelReservationRequestDto.clientId,
+          },
+        },
+      );
+
+      if (!reservationEntity) {
+        throw new Error(
+          `reservation${cancelReservationRequestDto.token} is not exist.`,
+        );
       }
 
-      reservation.state = RESERVATION_STATE.APPROVE;
+      const reservation = Reservation.createFromEntity(reservationEntity);
+      reservation.cancel();
 
       const result = await queryRunner.manager.save(reservation.toEntity());
       await queryRunner.commitTransaction();

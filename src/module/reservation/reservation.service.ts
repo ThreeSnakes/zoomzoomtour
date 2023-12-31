@@ -61,7 +61,11 @@ export class ReservationService {
       const tourDate = dayjs(createNewReservationDto.date).format('YYYY-MM-DD');
 
       const tour = Tour.createFromEntity(tourEntity);
-      await tour.isValidTourDate(tourDate);
+      const isValidTourDate = await tour.isValidTourDate(tourDate);
+
+      if (!isValidTourDate) {
+        throw new Error('해당 날짜에는 예약을 할 수 없습니다.');
+      }
 
       const targetDateReservationCnt = await this.dataSource.manager.countBy(
         ReservationEntity,

@@ -21,7 +21,7 @@ export class HolidayEntity {
   tour?: Promise<TourEntity>;
 
   @Column({
-    length: 5,
+    length: 10,
     nullable: false,
   })
   date: string;

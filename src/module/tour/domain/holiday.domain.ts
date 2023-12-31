@@ -28,14 +28,14 @@ export class Holiday {
   }
 
   constructor(param: PARAM) {
-    const date = dayjs(param.date, 'MM-DD');
+    const date = dayjs(param.date, 'YYYY-MM-DD');
 
     if (!date.isValid()) {
       throw new Error('Invalid Date');
     }
 
     this._id = param.id;
-    this._date = date.format('MM-DD');
+    this._date = date.format('YYYY-MM-DD');
     this._tour = param.tour;
     this._ctime = param.ctime;
     this._mtime = param.mtime;
@@ -45,7 +45,7 @@ export class Holiday {
     return this._date;
   }
 
-  isEqual(date: string) {
+  isHoliday(date: string) {
     return dayjs(date).isSame(dayjs(this._date));
   }
 

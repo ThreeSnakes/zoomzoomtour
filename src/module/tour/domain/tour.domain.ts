@@ -113,10 +113,10 @@ export class Tour {
       this.holidays(),
     ]);
 
-    const isHoliday = holidays?.some((holiday) => holiday.isEqual(date));
+    const isHoliday = holidays?.some((holiday) => holiday.isHoliday(date));
 
     if (isHoliday) {
-      throw new Error(`해당 날짜(${date})는 휴일입니다.`);
+      return false;
     }
 
     const isRegularHoliday = regularHolidays?.some((regularHoliday) =>
@@ -124,8 +124,10 @@ export class Tour {
     );
 
     if (isRegularHoliday) {
-      throw new Error('해당 요일은 정기 휴일입니다.');
+      return false;
     }
+
+    return true;
   }
 
   toEntity() {

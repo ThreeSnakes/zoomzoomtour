@@ -6,7 +6,7 @@ import { SaveReservationCacheDto } from './dto/service/saveReservationCache.dto'
 import { Tour } from '../tour/domain/tour.domain';
 
 @Injectable()
-export class RedisWarpperService {
+export class ReservationCacheService {
   constructor(private readonly redisService: RedisService) {}
 
   async saveReservationCache(

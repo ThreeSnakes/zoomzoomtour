@@ -5,13 +5,13 @@ import { ReservationController } from './reservation.controller';
 import { ReservationService } from './reservation.service';
 import { TourEntity } from '../../infra/database/entity/tour.entity';
 import { ClientEntity } from '../../infra/database/entity/client.entity';
-import { RedisWrapperModule } from '../redisWarpper/redisWrapper.module';
+import { ReservationCacheModule } from '../reservationCache/reservationCache.module';
 
 @Module({
   controllers: [ReservationController],
   imports: [
     TypeOrmModule.forFeature([ReservationEntity, ClientEntity, TourEntity]),
-    RedisWrapperModule,
+    ReservationCacheModule,
   ],
   providers: [ReservationService],
 })

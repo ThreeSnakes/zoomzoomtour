@@ -10,7 +10,7 @@ import { RegularHoliday } from './domain/regularHoliday.domain';
 import { Holiday } from './domain/holiday.domain';
 import { CreateNewTourResponseDto } from './dto/service/createNewTourResponse.dto';
 import { FetchTourCalendarDto } from './dto/service/fetchTourCalendar.dto';
-import { RedisWarpperService } from '../redisWarpper/redisWarpper.service';
+import { ReservationCacheService } from '../reservationCache/reservationCache.service';
 import { DayjsHelperService } from '../helper/dayjsHelper/dayjsHelper.service';
 
 @Injectable()
@@ -21,7 +21,7 @@ export class TourService {
     private readonly tourRepository: Repository<TourEntity>,
     @InjectRepository(SellerEntity)
     private readonly sellerRepository: Repository<SellerEntity>,
-    private readonly redisWrapperService: RedisWarpperService,
+    private readonly redisWrapperService: ReservationCacheService,
     private readonly dayjsHelperService: DayjsHelperService,
   ) {
     this.tourRepository = tourRepository;

@@ -11,14 +11,14 @@ import { CreateNewReservationResponseDto } from './dto/service/createNewReservat
 import { ApproveWaitReservationResponseDto } from './dto/service/approveWaitReservationResponse.dto';
 import { CancelReservationRequestDto } from './dto/service/cancelReservationRequest.dto';
 import { CancelReservationResponseDto } from './dto/service/cancelReservationResponse.dto';
-import { RedisWarpperService } from '../redisWarpper/redisWarpper.service';
+import { ReservationCacheService } from '../reservationCache/reservationCache.service';
 import { Tour } from '../tour/domain/tour.domain';
 
 @Injectable()
 export class ReservationService {
   constructor(
     private readonly dataSource: DataSource,
-    private readonly redisWarpperService: RedisWarpperService,
+    private readonly redisWarpperService: ReservationCacheService,
   ) {}
 
   private makeDaysObject(yearMonth) {

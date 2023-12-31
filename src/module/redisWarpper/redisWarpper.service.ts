@@ -16,18 +16,10 @@ export class RedisWarpperService {
     const yearMonth = targetDate.format('YYYY-MM');
     const date = targetDate.get('date');
 
-    const reservationCache = await this.redisService.hget(
-      `${saveReservationCacheDto.tourId}`,
-      yearMonth,
-    );
-    const parsedCache = JSON.parse(reservationCache || '{}');
-    parsedCache[date] ??= [];
-    parsedCache[date].push(saveReservationCacheDto.token);
-    await this.redisService.hset(
-      `${saveReservationCacheDto.tourId}`,
-      yearMonth,
-      JSON.stringify(parsedCache),
-    );
+    const key = `${saveReservationCacheDto.tourId}|${yearMonth}`;
+    const field = `${date}`;
+
+    await this.redisService.hincrby(key, field, -1);
     return;
   }
 

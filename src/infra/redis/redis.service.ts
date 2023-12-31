@@ -20,6 +20,14 @@ export class RedisService {
     return this.redisClient.get(key);
   }
 
+  async hgetall(key: string) {
+    return this.redisClient.hgetall(key);
+  }
+
+  async hincrby(key: string, field: string, increment: number) {
+    return this.redisClient.hincrby(key, field, increment);
+  }
+
   async hset(key: string, field: string, value: string) {
     return this.redisClient.hset(key, field, value);
   }

@@ -59,6 +59,7 @@ export class ReservationService {
         ReservationEntity,
         {
           date: dayjs(createNewReservationDto.date).format('YYYY-MM-DD'),
+          state: RESERVATION_STATE.APPROVE,
           tour: {
             id: tour.id,
           },

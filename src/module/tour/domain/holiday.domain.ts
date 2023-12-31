@@ -45,6 +45,10 @@ export class Holiday {
     return this._date;
   }
 
+  isEqual(date: string) {
+    return dayjs(date).isSame(dayjs(this._date));
+  }
+
   toEntity(): HolidayEntity {
     const entity = new HolidayEntity();
     entity.id = this._id;

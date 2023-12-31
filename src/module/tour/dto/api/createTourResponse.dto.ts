@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { DAY_OF_WEEK } from '../../domain/regularHoliday.domain';
 
 export class CreateTourResponseDto {
   @ApiProperty({
@@ -19,7 +20,7 @@ export class CreateTourResponseDto {
   @ApiProperty({
     description: '해당 투어 정기 휴일',
   })
-  regularHolidays: string[];
+  regularHolidays: DAY_OF_WEEK[];
 
   @ApiProperty({
     description: '해당 투어 휴일',

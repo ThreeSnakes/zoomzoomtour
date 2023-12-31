@@ -107,6 +107,27 @@ export class Tour {
     return holidayEntities?.map((holiday) => Holiday.createFromEntity(holiday));
   }
 
+  async isValidTourDate(date: string) {
+    const [regularHolidays, holidays] = await Promise.all([
+      this.regularHolidays(),
+      this.holidays(),
+    ]);
+
+    const isHoliday = holidays?.some((holiday) => holiday.isEqual(date));
+
+    if (isHoliday) {
+      throw new Error(`해당 날짜(${date})는 휴일입니다.`);
+    }
+
+    const isRegularHoliday = regularHolidays?.some((regularHoliday) =>
+      regularHoliday.isRegularHoliday(date),
+    );
+
+    if (isRegularHoliday) {
+      throw new Error('해당 요일은 정기 휴일입니다.');
+    }
+  }
+
   toEntity() {
     const entity = new TourEntity();
     entity.id = this._id;

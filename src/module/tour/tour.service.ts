@@ -1,3 +1,4 @@
+import * as dayjs from 'dayjs';
 import { Injectable } from '@nestjs/common';
 import { TourEntity } from '../../infra/database/entity/tour.entity';
 import { DataSource, Repository } from 'typeorm';
@@ -8,6 +9,8 @@ import { Tour } from './domain/tour.domain';
 import { RegularHoliday } from './domain/regularHoliday.domain';
 import { Holiday } from './domain/holiday.domain';
 import { CreateNewTourResponseDto } from './dto/service/createNewTourResponse.dto';
+import { FetchTourCalendarDto } from './dto/service/fetchTourCalendar.dto';
+import { RedisWarpperService } from '../redisWarpper/redisWarpper.service';
 
 @Injectable()
 export class TourService {
@@ -17,6 +20,7 @@ export class TourService {
     private readonly tourRepository: Repository<TourEntity>,
     @InjectRepository(SellerEntity)
     private readonly sellerRepository: Repository<SellerEntity>,
+    private readonly redisWrapperService: RedisWarpperService,
   ) {
     this.tourRepository = tourRepository;
   }
@@ -78,5 +82,19 @@ export class TourService {
     } finally {
       await queryRunner.release();
     }
+  }
+
+  async fetchTourCalendar(fetchTourCalendarDto: FetchTourCalendarDto) {
+    const yearMonth = dayjs()
+      .year(fetchTourCalendarDto.year)
+      .month(fetchTourCalendarDto.month - 1)
+      .format('YYYY-MM');
+
+    const cache = await this.redisWrapperService.fetchReservationCache({
+      tourId: fetchTourCalendarDto.tourId,
+      yearMonth,
+    });
+
+    return JSON.parse(cache || '{}');
   }
 }

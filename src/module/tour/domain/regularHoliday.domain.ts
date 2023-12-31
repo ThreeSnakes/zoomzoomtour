@@ -11,13 +11,13 @@ type PARAM = {
 };
 
 export enum DAY_OF_WEEK {
-  'SUN' = 'SUN',
-  'MON' = 'MON',
-  'TUE' = 'TUE',
-  'WED' = 'WED',
-  'THU' = 'THU',
-  'FRI' = 'FRI',
-  'SAT' = 'SAT',
+  'SUN' = 0,
+  'MON' = 1,
+  'TUE' = 2,
+  'WED' = 3,
+  'THU' = 4,
+  'FRI' = 5,
+  'SAT' = 6,
 }
 
 export class RegularHoliday {
@@ -51,6 +51,12 @@ export class RegularHoliday {
 
   get day() {
     return this._day;
+  }
+
+  isRegularHoliday(day) {
+    const targetDay = dayjs(day).day();
+
+    return targetDay === this._day;
   }
 
   toEntity(): RegularHolidayEntity {

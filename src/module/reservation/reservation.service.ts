@@ -1,8 +1,7 @@
 import * as dayjs from 'dayjs';
 import { Injectable } from '@nestjs/common';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource } from 'typeorm';
 import { ReservationEntity } from '../../infra/database/entity/reservation.entity';
-import { InjectRepository } from '@nestjs/typeorm';
 import { CreateNewReservationRequestDto } from './dto/service/createNewReservationRequest.dto';
 import { ClientEntity } from '../../infra/database/entity/client.entity';
 import { TourEntity } from '../../infra/database/entity/tour.entity';
@@ -12,21 +11,25 @@ import { CreateNewReservationResponseDto } from './dto/service/createNewReservat
 import { ApproveWaitReservationResponseDto } from './dto/service/approveWaitReservationResponse.dto';
 import { CancelReservationRequestDto } from './dto/service/cancelReservationRequest.dto';
 import { CancelReservationResponseDto } from './dto/service/cancelReservationResponse.dto';
+import { RedisWarpperService } from '../redisWarpper/redisWarpper.service';
+import { Tour } from '../tour/domain/tour.domain';
 
 @Injectable()
 export class ReservationService {
   constructor(
     private readonly dataSource: DataSource,
-    @InjectRepository(ReservationEntity)
-    private readonly reservationRepository: Repository<ReservationEntity>,
-    @InjectRepository(ClientEntity)
-    private readonly clientRepository: Repository<ClientEntity>,
-    @InjectRepository(TourEntity)
-    private readonly tourRepository: Repository<TourEntity>,
-  ) {
-    this.reservationRepository = reservationRepository;
-    this.clientRepository = clientRepository;
-    this.tourRepository = tourRepository;
+    private readonly redisWarpperService: RedisWarpperService,
+  ) {}
+
+  private makeDaysObject(yearMonth) {
+    const lastDay = dayjs(yearMonth, 'YYYY-MM').endOf('month').date();
+    const result = {};
+
+    for (let i = 1; i <= lastDay; i += 1) {
+      result[i] = [];
+    }
+
+    return result;
   }
 
   async createNewReservation(
@@ -36,7 +39,7 @@ export class ReservationService {
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
-      const [client, tour] = await Promise.all([
+      const [clientEntity, tourEntity] = await Promise.all([
         this.dataSource.manager.findOneBy(ClientEntity, {
           id: createNewReservationDto.clientId,
         }),
@@ -45,30 +48,35 @@ export class ReservationService {
         }),
       ]);
 
-      if (!tour) {
+      if (!tourEntity) {
         throw new Error(`tour(${createNewReservationDto.tourId}) is not exist`);
       }
 
-      if (!client) {
+      if (!clientEntity) {
         throw new Error(
           `client(${createNewReservationDto.clientId}) is not exist`,
         );
       }
 
+      const tourDate = dayjs(createNewReservationDto.date).format('YYYY-MM-DD');
+
+      const tour = Tour.createFromEntity(tourEntity);
+      await tour.isValidTourDate(tourDate);
+
       const targetDateReservationCnt = await this.dataSource.manager.countBy(
         ReservationEntity,
         {
-          date: dayjs(createNewReservationDto.date).format('YYYY-MM-DD'),
+          date: tourDate,
           state: RESERVATION_STATE.APPROVE,
           tour: {
-            id: tour.id,
+            id: tourEntity.id,
           },
         },
       );
 
       const newReservation = new Reservation({
-        client: Promise.resolve(client),
-        tour: Promise.resolve(tour),
+        client: Promise.resolve(clientEntity),
+        tour: Promise.resolve(tourEntity),
         date: createNewReservationDto.date,
         state:
           targetDateReservationCnt > 5
@@ -76,6 +84,12 @@ export class ReservationService {
             : RESERVATION_STATE.APPROVE,
       });
       const result = await queryRunner.manager.save(newReservation.toEntity());
+
+      await this.redisWarpperService.saveReservationCache({
+        tourId: tourEntity.id,
+        reservationDate: createNewReservationDto.date,
+        token: result.token,
+      });
       await queryRunner.commitTransaction();
 
       return {

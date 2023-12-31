@@ -1,9 +1,10 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { TourService } from './tour.service';
 import { CreateTourRequestDto } from './dto/api/createTourRequest.dto';
 import { ApiOperation } from '@nestjs/swagger';
 import { CreateTourResponseDto } from './dto/api/createTourResponse.dto';
 import { ApiCreatedResponse } from '@nestjs/swagger/dist/decorators/api-response.decorator';
+import { GetTourReservationCalendarRequestDto } from './dto/api/getTourReservationCalendarRequestDto';
 
 @Controller('/v1/tour')
 export class TourController {
@@ -39,5 +40,22 @@ export class TourController {
         ) || [],
       holidays: (await tour.holidays())?.map((holiday) => holiday.date) || [],
     };
+  }
+
+  @Get('/:tourId')
+  @ApiOperation({
+    summary: 'Tour 예약 가능 날자 조회 API',
+    description: 'Client가 특정 Tour의 예약 가능 날짜를 조회할 때 사용한다.',
+  })
+  async getTourReservationCalendar(
+    @Param('tourId') tourId: number,
+    @Query()
+    getTourReservationCalendarRequestDto: GetTourReservationCalendarRequestDto,
+  ) {
+    return this.tourService.fetchTourCalendar({
+      tourId,
+      year: getTourReservationCalendarRequestDto.year,
+      month: getTourReservationCalendarRequestDto.month,
+    });
   }
 }

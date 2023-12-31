@@ -3,7 +3,6 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { CacheModule } from '@nestjs/cache-manager';
 import { SellerEntity } from './infra/database/entity/seller.entity';
 import { SellerModule } from './module/seller/seller.module';
 import { TourEntity } from './infra/database/entity/tour.entity';
@@ -41,15 +40,6 @@ const isDev = process.env.NODE_ENV !== 'production';
           ReservationEntity,
         ],
         synchronize: isDev,
-      }),
-      inject: [ConfigService],
-    }),
-    CacheModule.registerAsync({
-      isGlobal: true,
-      imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => ({
-        host: configService.get('REDIS_HOST'),
-        port: configService.get('REDIS_PORT'),
       }),
       inject: [ConfigService],
     }),

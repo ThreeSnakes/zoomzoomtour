@@ -1,4 +1,4 @@
-import { Seller } from '../../seller.domain';
+import { Seller } from '../../domain/seller.domain';
 
 export class CreateNewSellerResponseDto {
   seller: Seller;

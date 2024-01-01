@@ -5,7 +5,7 @@ import { RegularHolidayEntity } from '../../../infra/database/entity/regularHoli
 import { HolidayEntity } from '../../../infra/database/entity/holiday.entity';
 import { RegularHoliday } from './regularHoliday.domain';
 import { Holiday } from './holiday.domain';
-import { Seller } from '../../seller/seller.domain';
+import { Seller } from '../../seller/domain/seller.domain';
 import { ReservationEntity } from '../../../infra/database/entity/reservation.entity';
 import { Reservation } from '../../reservation/domain/reservation.domain';
 

@@ -1,12 +1,14 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { ApiOperation } from '@nestjs/swagger';
-import { SellerService } from './seller.service';
+import { CreateNewSellerService } from './service/createNewSeller.service';
 import { RegisterSellerRequestDto } from './dto/api/registerSellerRequest.dto';
 import { ApiCreatedResponse } from '@nestjs/swagger/dist/decorators/api-response.decorator';
 
 @Controller('/v1/seller')
 export class SellerController {
-  constructor(private readonly sellerService: SellerService) {}
+  constructor(
+    private readonly createNewSellerService: CreateNewSellerService,
+  ) {}
 
   @Post()
   @ApiOperation({
@@ -18,7 +20,7 @@ export class SellerController {
     type: RegisterSellerRequestDto,
   })
   async registerSeller(@Body() registerSellerDto: RegisterSellerRequestDto) {
-    const { seller } = await this.sellerService.createNewSeller({
+    const { seller } = await this.createNewSellerService.execute({
       name: registerSellerDto.name,
     });
 

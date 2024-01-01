@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { RedisService } from '../../infra/redis/redis.service';
 import { FetchReservationCacheDto } from './dto/service/fetchReservationCache.dto';
 import { SaveReservationCacheDto } from './dto/service/saveReservationCache.dto';
-import { Tour } from '../tour/domain/tour.domain';
+import { MakeTourReservationCacheDto } from './dto/service/makeTourReservationCache.dto';
 
 @Injectable()
 export class ReservationCacheService {
@@ -23,18 +23,23 @@ export class ReservationCacheService {
     return;
   }
 
-  async makeTourReservationCache(tour: Tour, year: number, month: number) {
+  async makeTourReservationCache(
+    makeTourReservationCacheDto: MakeTourReservationCacheDto,
+  ): Promise<void> {
     const targetDate = dayjs()
-      .year(year)
-      .month(month - 1);
+      .year(makeTourReservationCacheDto.year)
+      .month(makeTourReservationCacheDto.month - 1);
     const lastDay = targetDate.endOf('month').get('date');
 
-    const key = `${tour.id}|${targetDate.format('YYYY-MM')}`;
+    const key = `${makeTourReservationCacheDto.tour.id}|${targetDate.format(
+      'YYYY-MM',
+    )}`;
 
     const result = {};
     for (let i = 1; i <= lastDay; i += 1) {
       const date = targetDate.date(i).format('YYYY-MM-DD');
-      const isTourAvailable = await tour.isValidTourDate(date);
+      const isTourAvailable =
+        await makeTourReservationCacheDto.tour.isValidTourDate(date);
       if (isTourAvailable) {
         result[i] = 5;
       }

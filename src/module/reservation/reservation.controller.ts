@@ -1,5 +1,5 @@
 import { Body, Controller, Param, Post, Put } from '@nestjs/common';
-import { ReservationService } from './reservation.service';
+import { CancelReservationService } from './service/cancelReservation.service';
 import { MakeNewReservationRequestDto } from './dto/api/makeNewReservationRequest.dto';
 import { ApiOkResponse, ApiOperation } from '@nestjs/swagger';
 import { ApproveReservationRequestDto } from './dto/api/approveReservationRequest.dto';
@@ -8,10 +8,16 @@ import { MakeNewReservationResponseDto } from './dto/api/makeNewReservationRespo
 import { ApproveReservationResponseDto } from './dto/api/approveReservationResponse.dto';
 import { CancelReservationRequestDto } from './dto/api/cancelReservationRequest.dto';
 import { CancelReservationResponseDto } from './dto/api/cancelReservationResponse.dto';
+import { CreateNewReservationService } from './service/createNewReservation.service';
+import { ApproveWaitReservationService } from './service/approveWaitReservation.service';
 
 @Controller('/v1/reservation')
 export class ReservationController {
-  constructor(private readonly reservationService: ReservationService) {}
+  constructor(
+    private readonly cancelReservationService: CancelReservationService,
+    private readonly createNewReservationService: CreateNewReservationService,
+    private readonly approveWaitReservationService: ApproveWaitReservationService,
+  ) {}
 
   @Post()
   @ApiOperation({
@@ -25,7 +31,7 @@ export class ReservationController {
   async makeNewReservation(
     @Body() makeNewReservationDto: MakeNewReservationRequestDto,
   ): Promise<MakeNewReservationResponseDto> {
-    const { reservation } = await this.reservationService.createNewReservation({
+    const { reservation } = await this.createNewReservationService.execute({
       clientId: makeNewReservationDto.clientId,
       tourId: makeNewReservationDto.tourId,
       date: makeNewReservationDto.date,
@@ -51,11 +57,10 @@ export class ReservationController {
     @Param('token') token: string,
     @Body() approveReservationDto: ApproveReservationRequestDto,
   ): Promise<ApproveReservationResponseDto> {
-    const { reservation } =
-      await this.reservationService.approveWaitReservation({
-        sellerId: approveReservationDto.sellerId,
-        token,
-      });
+    const { reservation } = await this.approveWaitReservationService.execute({
+      sellerId: approveReservationDto.sellerId,
+      token,
+    });
 
     return {
       tourId: (await reservation.tour()).id,
@@ -77,10 +82,11 @@ export class ReservationController {
     @Param('token') token: string,
     @Body() cancelReservationRequestDto: CancelReservationRequestDto,
   ): Promise<CancelReservationResponseDto> {
-    const { reservation } = await this.reservationService.cancelReservation({
-      token,
-      clientId: cancelReservationRequestDto.clientId,
-    });
+    const { reservation } =
+      await this.cancelReservationService.cancelReservation({
+        token,
+        clientId: cancelReservationRequestDto.clientId,
+      });
 
     return {
       tourId: (await reservation.tour()).id,

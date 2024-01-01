@@ -83,21 +83,22 @@ export class ReservationService {
         tour: Promise.resolve(tourEntity),
         date: createNewReservationDto.date,
         state:
-          targetDateReservationCnt > 5
+          targetDateReservationCnt >= 5
             ? RESERVATION_STATE.WAIT
             : RESERVATION_STATE.APPROVE,
       });
       const result = await queryRunner.manager.save(newReservation.toEntity());
       await queryRunner.commitTransaction();
 
-      await this.redisWarpperService.saveReservationCountCache({
+      const reservation = Reservation.createFromEntity(result);
+      await this.redisWarpperService.makeTourReservationCache({
         tour,
-        reservationDate: createNewReservationDto.date,
-        token: result.token,
+        year: reservation.date.year(),
+        month: reservation.date.month(),
       });
 
       return {
-        reservation: Reservation.createFromEntity(result),
+        reservation,
       };
     } catch (e) {
       await queryRunner.rollbackTransaction();

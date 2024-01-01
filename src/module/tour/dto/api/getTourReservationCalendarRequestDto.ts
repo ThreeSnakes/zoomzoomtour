@@ -17,8 +17,8 @@ export class GetTourReservationCalendarRequestDto {
   @ApiProperty({
     description: '조회 월',
   })
-  @Min(1)
-  @Max(12)
+  @Min(0)
+  @Max(11)
   @IsNumber()
   @Transform((value) => {
     return +value.value;

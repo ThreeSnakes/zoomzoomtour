@@ -67,6 +67,10 @@ export class Reservation {
     return this._state;
   }
 
+  get date() {
+    return dayjs(this._date);
+  }
+
   async tour() {
     const tourEntity = await Promise.resolve(this._tour);
 

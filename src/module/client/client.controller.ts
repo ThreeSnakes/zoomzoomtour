@@ -1,13 +1,13 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { RegisterClient } from './dto/api/registerClientRequest.dto';
-import { ClientService } from './client.service';
+import { CreateNewClientService } from './service/createNewClient.service';
 import { ApiOperation } from '@nestjs/swagger';
 import { RegisterClientResponseDto } from './dto/api/registerClientResponse.dto';
 import { ApiCreatedResponse } from '@nestjs/swagger/dist/decorators/api-response.decorator';
 
 @Controller('/v1/client')
 export class ClientController {
-  constructor(private readonly clientService: ClientService) {}
+  constructor(private readonly clientService: CreateNewClientService) {}
 
   @Post()
   @ApiOperation({
@@ -21,7 +21,7 @@ export class ClientController {
   async registerClient(
     @Body() registerClient: RegisterClient,
   ): Promise<RegisterClientResponseDto> {
-    const { client } = await this.clientService.createNewClient({
+    const { client } = await this.clientService.execute({
       name: registerClient.name,
     });
 

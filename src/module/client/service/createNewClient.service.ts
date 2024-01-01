@@ -1,26 +1,22 @@
-import { ClientEntity } from '../../../infra/database/entity/client.entity';
-import { Repository } from 'typeorm';
-import { InjectRepository } from '@nestjs/typeorm';
 import { CreateNewClientRequestDto } from '../dto/service/createNewClientRequest.dto';
 import { Client } from '../domain/client.domain';
 import { createNewClientResponseDto } from '../dto/service/createNewClientResponse.dto';
+import { ClientRepository } from '../repository/client.repository';
+import { Injectable } from '@nestjs/common';
 
+@Injectable()
 export class CreateNewClientService {
-  constructor(
-    @InjectRepository(ClientEntity)
-    private readonly clientRepository: Repository<ClientEntity>,
-  ) {
-    this.clientRepository = clientRepository;
-  }
+  constructor(private readonly clientRepository: ClientRepository) {}
 
   async execute({
     name,
   }: CreateNewClientRequestDto): Promise<createNewClientResponseDto> {
-    const clientDomain = new Client({ name });
-    const result = await this.clientRepository.save(clientDomain.toEntity());
+    const client = await this.clientRepository.createClient(
+      new Client({ name }),
+    );
 
     return {
-      client: Client.createFromEntity(result),
+      client,
     };
   }
 }

@@ -8,8 +8,8 @@ export class RedisService {
     private readonly _redisClient: Redis,
   ) {}
 
-  async hmset(key: string, value: object) {
-    return this._redisClient.hmset(key, value);
+  async hset(key: string, value: object) {
+    return this._redisClient.hset(key, value);
   }
 
   async hgetall(key: string) {

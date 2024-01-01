@@ -121,6 +121,7 @@ export class Tour {
     ]);
 
     const isHoliday = holidays?.some((holiday) => holiday.isHoliday(date));
+    console.log(isHoliday);
 
     if (isHoliday) {
       return false;
@@ -129,6 +130,8 @@ export class Tour {
     const isRegularHoliday = regularHolidays?.some((regularHoliday) =>
       regularHoliday.isRegularHoliday(date),
     );
+
+    console.log(isRegularHoliday);
 
     return !isRegularHoliday;
   }

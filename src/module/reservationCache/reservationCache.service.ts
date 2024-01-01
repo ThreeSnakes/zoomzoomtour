@@ -50,7 +50,7 @@ export class ReservationCacheService {
       },
     );
 
-    await this.redisService.hmset(key, result);
+    await this.redisService.hset(key, result);
 
     return;
   }

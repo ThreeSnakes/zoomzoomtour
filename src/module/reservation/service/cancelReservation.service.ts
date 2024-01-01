@@ -4,7 +4,7 @@ import { ReservationEntity } from '../../../infra/database/entity/reservation.en
 import { Reservation } from '../domain/reservation.domain';
 import { CancelReservationRequestDto } from '../dto/service/cancelReservationRequest.dto';
 import { CancelReservationResponseDto } from '../dto/service/cancelReservationResponse.dto';
-import { ReservationCacheService } from '../../reservationCache/reservationCache.service';
+import { ReservationCacheService } from '../../reservationCache/service/reservationCache.service';
 
 @Injectable()
 export class CancelReservationService {

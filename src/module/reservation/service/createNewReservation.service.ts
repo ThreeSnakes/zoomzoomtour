@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import * as dayjs from 'dayjs';
 import { DataSource } from 'typeorm';
 import { CreateNewReservationRequestDto } from '../dto/service/createNewReservationRequest.dto';
-import { ReservationCacheService } from '../../reservationCache/reservationCache.service';
+import { ReservationCacheService } from '../../reservationCache/service/reservationCache.service';
 import { ClientEntity } from '../../../infra/database/entity/client.entity';
 import { TourEntity } from '../../../infra/database/entity/tour.entity';
 import { Tour } from '../../tour/domain/tour.domain';
@@ -14,7 +14,7 @@ import { CreateNewReservationResponseDto } from '../dto/service/createNewReserva
 export class CreateNewReservationService {
   constructor(
     private readonly dataSource: DataSource,
-    private readonly redisWarpperService: ReservationCacheService,
+    private readonly reservationCacheService: ReservationCacheService,
   ) {}
   async execute({
     clientId,
@@ -75,7 +75,7 @@ export class CreateNewReservationService {
       await queryRunner.commitTransaction();
 
       const reservation = Reservation.createFromEntity(result);
-      await this.redisWarpperService.makeTourReservationCache({
+      await this.reservationCacheService.fetchReservationCache({
         tour,
         year: reservation.date.year(),
         month: reservation.date.month(),

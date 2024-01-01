@@ -10,12 +10,13 @@ import { RegularHoliday } from './domain/regularHoliday.domain';
 import { Holiday } from './domain/holiday.domain';
 import { CreateNewTourResponseDto } from './dto/service/createNewTourResponse.dto';
 import { FetchTourCalendarDto } from './dto/service/fetchTourCalendar.dto';
-import { ReservationCacheService } from '../reservationCache/reservationCache.service';
+import { ReservationCacheService } from '../reservationCache/service/reservationCache.service';
 import { DayjsHelperService } from '../helper/dayjsHelper/dayjsHelper.service';
 import { ModifyTourHolidaysRequestDto } from './dto/service/modifyTourHolidaysRequest.dto';
 import { ModifyTourHolidaysResponseDto } from './dto/service/modifyTourHolidaysResponse.dto';
 import { RegularHolidayEntity } from '../../infra/database/entity/regularHoliday.entity';
 import { HolidayEntity } from '../../infra/database/entity/holiday.entity';
+import { MakeTourReservationCacheService } from '../reservationCache/service/makeTourReservationCache.service';
 
 @Injectable()
 export class TourService {
@@ -26,6 +27,7 @@ export class TourService {
     @InjectRepository(TourEntity)
     private readonly tourRepository: Repository<TourEntity>,
     private readonly reservationCacheService: ReservationCacheService,
+    private readonly makeTourReservationCacheService: MakeTourReservationCacheService,
     private readonly dayjsHelperService: DayjsHelperService,
   ) {}
 
@@ -87,7 +89,7 @@ export class TourService {
         'month',
       );
       for (const day of dateRange) {
-        await this.reservationCacheService.makeTourReservationCache({
+        await this.makeTourReservationCacheService.execute({
           tour,
           year: day.year(),
           month: day.month(),
@@ -185,7 +187,7 @@ export class TourService {
         'month',
       );
       for (const day of dateRange) {
-        await this.reservationCacheService.makeTourReservationCache({
+        await this.makeTourReservationCacheService.execute({
           tour,
           year: day.year(),
           month: day.month(),

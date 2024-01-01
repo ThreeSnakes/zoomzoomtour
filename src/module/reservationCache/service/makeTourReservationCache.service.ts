@@ -1,15 +1,13 @@
-import * as dayjs from 'dayjs';
 import { Injectable } from '@nestjs/common';
-import { RedisService } from '../../infra/redis/redis.service';
-import { FetchReservationCacheDto } from './dto/service/fetchReservationCache.dto';
-import { MakeTourReservationCacheDto } from './dto/service/makeTourReservationCache.dto';
-import { RESERVATION_STATE } from '../reservation/domain/reservation.domain';
+import { MakeTourReservationCacheDto } from '../dto/service/makeTourReservationCache.dto';
+import * as dayjs from 'dayjs';
+import { RESERVATION_STATE } from '../../reservation/domain/reservation.domain';
+import { RedisService } from '../../../infra/redis/redis.service';
 
 @Injectable()
-export class ReservationCacheService {
+export class MakeTourReservationCacheService {
   constructor(private readonly redisService: RedisService) {}
-
-  async makeTourReservationCache({
+  async execute({
     tour,
     year,
     month,
@@ -45,18 +43,5 @@ export class ReservationCacheService {
     await this.redisService.hset(key, result);
 
     return;
-  }
-
-  async fetchReservationCache({ tour, year, month }: FetchReservationCacheDto) {
-    const yearMonth = dayjs().year(year).month(month).format('YYYY-MM');
-    const key = `${tour.id}|${yearMonth}`;
-
-    // 캐시가 존재하지 않는 경우 캐시 생성.
-    const tourMonthCache = await this.redisService.exist(key);
-    if (!tourMonthCache) {
-      await this.makeTourReservationCache({ tour, year, month });
-    }
-
-    return this.redisService.hgetall(key);
   }
 }

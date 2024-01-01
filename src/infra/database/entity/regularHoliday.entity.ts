@@ -1,17 +1,16 @@
 import {
   Column,
-  CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
-  UpdateDateColumn,
 } from 'typeorm';
 import { TourEntity } from './tour.entity';
 import { DAY_OF_WEEK } from '../../../module/tour/domain/regularHoliday.domain';
+import { BaseEntity } from './base.entity';
 
 @Entity('REGULAR_HOLIDAY')
-export class RegularHolidayEntity {
+export class RegularHolidayEntity extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -25,19 +24,4 @@ export class RegularHolidayEntity {
     nullable: false,
   })
   day: DAY_OF_WEEK;
-
-  @CreateDateColumn({
-    type: 'timestamp',
-    precision: 0,
-    default: () => 'CURRENT_TIMESTAMP(0)',
-  })
-  ctime: Date;
-
-  @UpdateDateColumn({
-    type: 'timestamp',
-    precision: 0,
-    default: () => 'CURRENT_TIMESTAMP(0)',
-    onUpdate: 'CURRENT_TIMESTAMP(0)',
-  })
-  mtime: Date;
 }

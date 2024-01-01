@@ -1,18 +1,17 @@
 import {
   Column,
-  CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
-  UpdateDateColumn,
 } from 'typeorm';
 import { ClientEntity } from './client.entity';
 import { TourEntity } from './tour.entity';
 import { RESERVATION_STATE } from '../../../module/reservation/domain/reservation.domain';
+import { BaseEntity } from './base.entity';
 
 @Entity('RESERVATION')
-export class ReservationEntity {
+export class ReservationEntity extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   token: string;
 
@@ -37,19 +36,4 @@ export class ReservationEntity {
     nullable: false,
   })
   date: string;
-
-  @CreateDateColumn({
-    type: 'timestamp',
-    precision: 0,
-    default: () => 'CURRENT_TIMESTAMP(0)',
-  })
-  ctime: Date;
-
-  @UpdateDateColumn({
-    type: 'timestamp',
-    precision: 0,
-    default: () => 'CURRENT_TIMESTAMP(0)',
-    onUpdate: 'CURRENT_TIMESTAMP(0)',
-  })
-  mtime: Date;
 }

@@ -1,20 +1,19 @@
 import {
   Column,
-  CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
-  UpdateDateColumn,
 } from 'typeorm';
 import { SellerEntity } from './seller.entity';
 import { RegularHolidayEntity } from './regularHoliday.entity';
 import { HolidayEntity } from './holiday.entity';
 import { ReservationEntity } from './reservation.entity';
+import { BaseEntity } from './base.entity';
 
 @Entity('TOUR')
-export class TourEntity {
+export class TourEntity extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -47,19 +46,4 @@ export class TourEntity {
 
   @OneToMany(() => ReservationEntity, (reservation) => reservation.tour)
   reservation: Promise<Awaited<ReservationEntity[]>>;
-
-  @CreateDateColumn({
-    type: 'timestamp',
-    precision: 0,
-    default: () => 'CURRENT_TIMESTAMP(0)',
-  })
-  ctime: Date;
-
-  @UpdateDateColumn({
-    type: 'timestamp',
-    precision: 0,
-    default: () => 'CURRENT_TIMESTAMP(0)',
-    onUpdate: 'CURRENT_TIMESTAMP(0)',
-  })
-  mtime: Date;
 }

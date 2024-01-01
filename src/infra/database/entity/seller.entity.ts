@@ -1,15 +1,9 @@
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  OneToMany,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { TourEntity } from './tour.entity';
+import { BaseEntity } from './base.entity';
 
 @Entity('SELLER')
-export class SellerEntity {
+export class SellerEntity extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -21,19 +15,4 @@ export class SellerEntity {
 
   @OneToMany(() => TourEntity, (tour) => tour.id)
   tours: Promise<TourEntity[]>;
-
-  @CreateDateColumn({
-    type: 'timestamp',
-    precision: 0,
-    default: () => 'CURRENT_TIMESTAMP(0)',
-  })
-  ctime: Date;
-
-  @UpdateDateColumn({
-    type: 'timestamp',
-    precision: 0,
-    default: () => 'CURRENT_TIMESTAMP(0)',
-    onUpdate: 'CURRENT_TIMESTAMP(0)',
-  })
-  mtime: Date;
 }

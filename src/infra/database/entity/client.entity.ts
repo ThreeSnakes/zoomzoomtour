@@ -1,15 +1,9 @@
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  OneToMany,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { ReservationEntity } from './reservation.entity';
+import { BaseEntity } from './base.entity';
 
 @Entity('CLIENT')
-export class ClientEntity {
+export class ClientEntity extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -21,19 +15,4 @@ export class ClientEntity {
 
   @OneToMany(() => ReservationEntity, (reservation) => reservation.client)
   reservation: Promise<Awaited<ReservationEntity[]>>;
-
-  @CreateDateColumn({
-    type: 'timestamp',
-    precision: 0,
-    default: () => 'CURRENT_TIMESTAMP(0)',
-  })
-  ctime: Date;
-
-  @UpdateDateColumn({
-    type: 'timestamp',
-    precision: 0,
-    default: () => 'CURRENT_TIMESTAMP(0)',
-    onUpdate: 'CURRENT_TIMESTAMP(0)',
-  })
-  mtime: Date;
 }

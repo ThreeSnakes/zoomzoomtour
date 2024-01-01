@@ -1,16 +1,15 @@
 import {
   Column,
-  CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
-  UpdateDateColumn,
 } from 'typeorm';
 import { TourEntity } from './tour.entity';
+import { BaseEntity } from './base.entity';
 
 @Entity('HOLIDAY')
-export class HolidayEntity {
+export class HolidayEntity extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -25,19 +24,4 @@ export class HolidayEntity {
     nullable: false,
   })
   date: string;
-
-  @CreateDateColumn({
-    type: 'timestamp',
-    precision: 0,
-    default: () => 'CURRENT_TIMESTAMP(0)',
-  })
-  ctime: Date;
-
-  @UpdateDateColumn({
-    type: 'timestamp',
-    precision: 0,
-    default: () => 'CURRENT_TIMESTAMP(0)',
-    onUpdate: 'CURRENT_TIMESTAMP(0)',
-  })
-  mtime: Date;
 }

@@ -13,12 +13,10 @@ export class ClientService {
     this.clientRepository = clientRepository;
   }
 
-  async createNewClient(
-    createNewClientDto: CreateNewClientRequestDto,
-  ): Promise<createNewClientResponseDto> {
-    const clientDomain = new Client({
-      name: createNewClientDto.name,
-    });
+  async createNewClient({
+    name,
+  }: CreateNewClientRequestDto): Promise<createNewClientResponseDto> {
+    const clientDomain = new Client({ name });
     const result = await this.clientRepository.save(clientDomain.toEntity());
 
     return {

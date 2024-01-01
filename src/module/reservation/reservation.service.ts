@@ -32,33 +32,33 @@ export class ReservationService {
     return result;
   }
 
-  async createNewReservation(
-    createNewReservationDto: CreateNewReservationRequestDto,
-  ): Promise<CreateNewReservationResponseDto> {
+  async createNewReservation({
+    clientId,
+    tourId,
+    date,
+  }: CreateNewReservationRequestDto): Promise<CreateNewReservationResponseDto> {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
     try {
       const [clientEntity, tourEntity] = await Promise.all([
         this.dataSource.manager.findOneBy(ClientEntity, {
-          id: createNewReservationDto.clientId,
+          id: clientId,
         }),
         this.dataSource.manager.findOneBy(TourEntity, {
-          id: createNewReservationDto.tourId,
+          id: tourId,
         }),
       ]);
 
       if (!tourEntity) {
-        throw new Error(`tour(${createNewReservationDto.tourId}) is not exist`);
+        throw new Error(`tour(${tourId}) is not exist`);
       }
 
       if (!clientEntity) {
-        throw new Error(
-          `client(${createNewReservationDto.clientId}) is not exist`,
-        );
+        throw new Error(`client(${clientId}) is not exist`);
       }
 
-      const tourDate = dayjs(createNewReservationDto.date).format('YYYY-MM-DD');
+      const tourDate = dayjs(date).format('YYYY-MM-DD');
 
       const tour = Tour.createFromEntity(tourEntity);
       const isValidTourDate = await tour.isValidTourDate(tourDate);
@@ -81,7 +81,7 @@ export class ReservationService {
       const newReservation = new Reservation({
         client: Promise.resolve(clientEntity),
         tour: Promise.resolve(tourEntity),
-        date: createNewReservationDto.date,
+        date: date,
         state:
           targetDateReservationCnt >= 5
             ? RESERVATION_STATE.WAIT
@@ -108,9 +108,10 @@ export class ReservationService {
     }
   }
 
-  async approveWaitReservation(
-    approveWaitReservationDto: ApproveWaitReservationRequestDto,
-  ): Promise<ApproveWaitReservationResponseDto> {
+  async approveWaitReservation({
+    sellerId,
+    token,
+  }: ApproveWaitReservationRequestDto): Promise<ApproveWaitReservationResponseDto> {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -118,19 +119,17 @@ export class ReservationService {
       const reservationEntity = await this.dataSource.manager.findOneBy(
         ReservationEntity,
         {
-          token: approveWaitReservationDto.token,
+          token,
           tour: {
             seller: {
-              id: approveWaitReservationDto.sellerId,
+              id: sellerId,
             },
           },
         },
       );
 
       if (!reservationEntity) {
-        throw new Error(
-          `reservation(${approveWaitReservationDto.token} is not exist.`,
-        );
+        throw new Error(`reservation(${token} is not exist.`);
       }
       const reservation = Reservation.createFromEntity(reservationEntity);
 
@@ -150,9 +149,10 @@ export class ReservationService {
     }
   }
 
-  async cancelReservation(
-    cancelReservationRequestDto: CancelReservationRequestDto,
-  ): Promise<CancelReservationResponseDto> {
+  async cancelReservation({
+    clientId,
+    token,
+  }: CancelReservationRequestDto): Promise<CancelReservationResponseDto> {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -160,17 +160,15 @@ export class ReservationService {
       const reservationEntity = await this.dataSource.manager.findOneBy(
         ReservationEntity,
         {
-          token: cancelReservationRequestDto.token,
+          token,
           client: {
-            id: cancelReservationRequestDto.clientId,
+            id: clientId,
           },
         },
       );
 
       if (!reservationEntity) {
-        throw new Error(
-          `reservation${cancelReservationRequestDto.token} is not exist.`,
-        );
+        throw new Error(`reservation${token} is not exist.`);
       }
 
       const reservation = Reservation.createFromEntity(reservationEntity);

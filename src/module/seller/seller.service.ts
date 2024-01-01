@@ -14,12 +14,10 @@ export class SellerService {
   ) {
     this.sellerRepository = sellerRepository;
   }
-  async createNewSeller(
-    dto: CreateNewSellerRequestDto,
-  ): Promise<CreateNewSellerResponseDto> {
-    const newSeller = new Seller({
-      name: dto.name,
-    });
+  async createNewSeller({
+    name,
+  }: CreateNewSellerRequestDto): Promise<CreateNewSellerResponseDto> {
+    const newSeller = new Seller({ name });
     const result = await this.sellerRepository.save(newSeller.toEntity());
 
     return {

@@ -29,17 +29,19 @@ export class TourService {
     private readonly dayjsHelperService: DayjsHelperService,
   ) {}
 
-  async createNewTour(
-    createNewTourRequestDto: CreateNewTourRequestDto,
-  ): Promise<CreateNewTourResponseDto> {
+  async createNewTour({
+    sellerId,
+    tourName,
+    tourDescription,
+    tourRegularHoliday,
+    tourHoliday,
+  }: CreateNewTourRequestDto): Promise<CreateNewTourResponseDto> {
     const seller = await this.sellerRepository.findOneBy({
-      id: createNewTourRequestDto.sellerId,
+      id: sellerId,
     });
 
     if (!seller) {
-      throw new Error(
-        `seller(${createNewTourRequestDto.sellerId}) is not exist.`,
-      );
+      throw new Error(`seller(${sellerId}) is not exist.`);
     }
 
     const queryRunner = this.dataSource.createQueryRunner();
@@ -47,14 +49,14 @@ export class TourService {
     await queryRunner.startTransaction();
     try {
       const newTour = new Tour({
-        name: createNewTourRequestDto.tourName,
-        description: createNewTourRequestDto.tourDescription,
+        name: tourName,
+        description: tourDescription,
         seller: Promise.resolve(seller),
       });
       const tourResult = await queryRunner.manager.save(newTour.toEntity());
 
       const regularHolidayEntities =
-        createNewTourRequestDto.tourRegularHoliday?.map((regularHoliday) => {
+        tourRegularHoliday?.map((regularHoliday) => {
           const newRegularHoliday = new RegularHoliday({
             tour: Promise.resolve(tourResult),
             day: regularHoliday,
@@ -65,7 +67,7 @@ export class TourService {
       tourResult.regularHoliday = Promise.resolve(regularHolidayEntities);
 
       const holidayEntities =
-        createNewTourRequestDto.tourHoliday?.map((holiday) => {
+        tourHoliday?.map((holiday) => {
           const newHoliday = new Holiday({
             tour: Promise.resolve(tourResult),
             date: holiday,
@@ -103,19 +105,19 @@ export class TourService {
     }
   }
 
-  async fetchTourCalendar(fetchTourCalendarDto: FetchTourCalendarDto) {
+  async fetchTourCalendar({ tourId, year, month }: FetchTourCalendarDto) {
     const tourEntity = await this.tourRepository.findOneBy({
-      id: fetchTourCalendarDto.tourId,
+      id: tourId,
     });
 
     if (!tourEntity) {
-      throw new Error(`tour(${fetchTourCalendarDto.tourId}) is not exist.`);
+      throw new Error(`tour(${tourId}) is not exist.`);
     }
 
     return this.reservationCacheService.fetchReservationCache({
       tour: Tour.createFromEntity(tourEntity),
-      year: fetchTourCalendarDto.year,
-      month: fetchTourCalendarDto.month,
+      year: year,
+      month: month,
     });
   }
 

@@ -1,4 +1,7 @@
+import { Tour } from '../../../tour/domain/tour.domain';
+
 export class FetchReservationCacheDto {
-  tourId: number;
-  yearMonth: string;
+  tour: Tour;
+  year: number;
+  month: number;
 }

@@ -19,6 +19,7 @@ export class ReservationCacheService {
     const key = `${saveReservationCountCacheDto.tour.id}|${yearMonth}`;
     const field = `${date}`;
 
+    // 캐시가 존재하지 않는 경우 캐시 생성.
     const tourMonthCache = await this.redisService.exist(key);
     if (!tourMonthCache) {
       await this.makeTourReservationCache({
@@ -62,8 +63,22 @@ export class ReservationCacheService {
   async fetchReservationCache(
     fetchReservationCacheDto: FetchReservationCacheDto,
   ) {
-    return this.redisService.hgetall(
-      `${fetchReservationCacheDto.tourId}|${fetchReservationCacheDto.yearMonth}`,
-    );
+    const yearMonth = dayjs()
+      .year(fetchReservationCacheDto.year)
+      .month(fetchReservationCacheDto.month - 1)
+      .format('YYYY-MM');
+    const key = `${fetchReservationCacheDto.tour.id}|${yearMonth}`;
+
+    // 캐시가 존재하지 않는 경우 캐시 생성.
+    const tourMonthCache = await this.redisService.exist(key);
+    if (!tourMonthCache) {
+      await this.makeTourReservationCache({
+        tour: fetchReservationCacheDto.tour,
+        year: fetchReservationCacheDto.year,
+        month: fetchReservationCacheDto.month,
+      });
+    }
+
+    return this.redisService.hgetall(key);
   }
 }

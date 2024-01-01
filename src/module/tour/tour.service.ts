@@ -17,8 +17,10 @@ import { DayjsHelperService } from '../helper/dayjsHelper/dayjsHelper.service';
 export class TourService {
   constructor(
     private readonly dataSource: DataSource,
-    @InjectRepository(TourEntity)
+    @InjectRepository(SellerEntity)
     private readonly sellerRepository: Repository<SellerEntity>,
+    @InjectRepository(TourEntity)
+    private readonly tourRepository: Repository<TourEntity>,
     private readonly redisWrapperService: ReservationCacheService,
     private readonly dayjsHelperService: DayjsHelperService,
   ) {}
@@ -98,14 +100,18 @@ export class TourService {
   }
 
   async fetchTourCalendar(fetchTourCalendarDto: FetchTourCalendarDto) {
-    const yearMonth = dayjs()
-      .year(fetchTourCalendarDto.year)
-      .month(fetchTourCalendarDto.month - 1)
-      .format('YYYY-MM');
+    const tourEntity = await this.tourRepository.findOneBy({
+      id: fetchTourCalendarDto.tourId,
+    });
+
+    if (!tourEntity) {
+      throw new Error(`tour(${fetchTourCalendarDto.tourId}) is not exist.`);
+    }
 
     return this.redisWrapperService.fetchReservationCache({
-      tourId: fetchTourCalendarDto.tourId,
-      yearMonth,
+      tour: Tour.createFromEntity(tourEntity),
+      year: fetchTourCalendarDto.year,
+      month: fetchTourCalendarDto.month,
     });
   }
 }

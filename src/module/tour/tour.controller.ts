@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
-import { TourService } from './tour.service';
+import { TourService } from './service/tour.service';
 import { CreateTourRequestDto } from './dto/api/createTourRequest.dto';
 import { ApiOperation } from '@nestjs/swagger';
 import { CreateTourResponseDto } from './dto/api/createTourResponse.dto';
@@ -7,10 +7,16 @@ import { ApiCreatedResponse } from '@nestjs/swagger/dist/decorators/api-response
 import { GetTourReservationCalendarRequestDto } from './dto/api/getTourReservationCalendarRequestDto';
 import { ModifyTourHolidaysRequestDto } from './dto/api/modifyTourHolidaysRequest.dto';
 import { ModifyTourHolidaysResponseDto } from './dto/api/modifyTourHolidaysResponse.dto';
+import { CreateNewTourService } from './service/createNewTour.service';
+import { ModifyTourHolidaysService } from './service/modifyTourHolidays.service';
 
 @Controller('/v1/tour')
 export class TourController {
-  constructor(private readonly tourService: TourService) {}
+  constructor(
+    private readonly tourService: TourService,
+    private readonly createNewTourService: CreateNewTourService,
+    private readonly modifyTourHolidaysService: ModifyTourHolidaysService,
+  ) {}
 
   @Post()
   @ApiOperation({
@@ -24,7 +30,7 @@ export class TourController {
   async createTour(
     @Body() createTourDto: CreateTourRequestDto,
   ): Promise<CreateTourResponseDto> {
-    const { tour } = await this.tourService.createNewTour({
+    const { tour } = await this.createNewTourService.execute({
       sellerId: createTourDto.sellerId,
       tourName: createTourDto.name,
       tourDescription: createTourDto.description,
@@ -70,7 +76,7 @@ export class TourController {
     @Param('tourId') tourId: number,
     @Body() modifyTourHolidaysRequestDto: ModifyTourHolidaysRequestDto,
   ): Promise<ModifyTourHolidaysResponseDto> {
-    const { tour } = await this.tourService.modifyTourHolidays({
+    const { tour } = await this.modifyTourHolidaysService.execute({
       tourId: tourId,
       regularHolidays: modifyTourHolidaysRequestDto.regularHoliday,
       holidays: modifyTourHolidaysRequestDto.holiday,

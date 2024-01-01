@@ -82,11 +82,10 @@ export class ReservationController {
     @Param('token') token: string,
     @Body() cancelReservationRequestDto: CancelReservationRequestDto,
   ): Promise<CancelReservationResponseDto> {
-    const { reservation } =
-      await this.cancelReservationService.cancelReservation({
-        token,
-        clientId: cancelReservationRequestDto.clientId,
-      });
+    const { reservation } = await this.cancelReservationService.execute({
+      token,
+      clientId: cancelReservationRequestDto.clientId,
+    });
 
     return {
       tourId: (await reservation.tour()).id,

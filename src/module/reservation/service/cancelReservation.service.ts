@@ -13,7 +13,7 @@ export class CancelReservationService {
     private readonly redisWarpperService: ReservationCacheService,
   ) {}
 
-  async cancelReservation({
+  async execute({
     clientId,
     token,
   }: CancelReservationRequestDto): Promise<CancelReservationResponseDto> {

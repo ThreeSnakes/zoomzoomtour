@@ -1,5 +1,5 @@
 import * as dayjs from 'dayjs';
-import { ClientEntity } from '../../infra/database/entity/client.entity';
+import { ClientEntity } from '../../../infra/database/entity/client.entity';
 
 type PARAM = {
   id?: number;

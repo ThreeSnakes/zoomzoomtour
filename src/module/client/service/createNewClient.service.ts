@@ -2,7 +2,7 @@ import { ClientEntity } from '../../../infra/database/entity/client.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateNewClientRequestDto } from '../dto/service/createNewClientRequest.dto';
-import { Client } from '../client.domain';
+import { Client } from '../domain/client.domain';
 import { createNewClientResponseDto } from '../dto/service/createNewClientResponse.dto';
 
 export class CreateNewClientService {

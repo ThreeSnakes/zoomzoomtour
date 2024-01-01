@@ -2,22 +2,31 @@ import * as dayjs from 'dayjs';
 import { Injectable } from '@nestjs/common';
 import { RedisService } from '../../infra/redis/redis.service';
 import { FetchReservationCacheDto } from './dto/service/fetchReservationCache.dto';
-import { SaveReservationCacheDto } from './dto/service/saveReservationCache.dto';
+import { SaveReservationCountCacheDto } from './dto/service/saveReservationCountCache.dto';
 import { MakeTourReservationCacheDto } from './dto/service/makeTourReservationCache.dto';
 
 @Injectable()
 export class ReservationCacheService {
   constructor(private readonly redisService: RedisService) {}
 
-  async saveReservationCache(
-    saveReservationCacheDto: SaveReservationCacheDto,
+  async saveReservationCountCache(
+    saveReservationCountCacheDto: SaveReservationCountCacheDto,
   ): Promise<void> {
-    const targetDate = dayjs(saveReservationCacheDto.reservationDate);
+    const targetDate = dayjs(saveReservationCountCacheDto.reservationDate);
     const yearMonth = targetDate.format('YYYY-MM');
     const date = targetDate.get('date');
 
-    const key = `${saveReservationCacheDto.tourId}|${yearMonth}`;
+    const key = `${saveReservationCountCacheDto.tour.id}|${yearMonth}`;
     const field = `${date}`;
+
+    const tourMonthCache = await this.redisService.exist(key);
+    if (!tourMonthCache) {
+      await this.makeTourReservationCache({
+        tour: saveReservationCountCacheDto.tour,
+        year: targetDate.year(),
+        month: targetDate.month() + 1,
+      });
+    }
 
     await this.redisService.hincrby(key, field, -1);
     return;

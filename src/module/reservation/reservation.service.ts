@@ -88,13 +88,13 @@ export class ReservationService {
             : RESERVATION_STATE.APPROVE,
       });
       const result = await queryRunner.manager.save(newReservation.toEntity());
+      await queryRunner.commitTransaction();
 
-      await this.redisWarpperService.saveReservationCache({
-        tourId: tourEntity.id,
+      await this.redisWarpperService.saveReservationCountCache({
+        tour,
         reservationDate: createNewReservationDto.date,
         token: result.token,
       });
-      await queryRunner.commitTransaction();
 
       return {
         reservation: Reservation.createFromEntity(result),

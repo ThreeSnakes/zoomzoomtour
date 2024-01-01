@@ -19,4 +19,8 @@ export class RedisService {
   async hincrby(key: string, field: string, increment: number) {
     return this._redisClient.hincrby(key, field, increment);
   }
+
+  async exist(key: string) {
+    return this._redisClient.exists(key);
+  }
 }

@@ -18,14 +18,10 @@ export class TourService {
   constructor(
     private readonly dataSource: DataSource,
     @InjectRepository(TourEntity)
-    private readonly tourRepository: Repository<TourEntity>,
-    @InjectRepository(SellerEntity)
     private readonly sellerRepository: Repository<SellerEntity>,
     private readonly redisWrapperService: ReservationCacheService,
     private readonly dayjsHelperService: DayjsHelperService,
-  ) {
-    this.tourRepository = tourRepository;
-  }
+  ) {}
 
   async createNewTour(
     createNewTourRequestDto: CreateNewTourRequestDto,
@@ -83,11 +79,11 @@ export class TourService {
         'month',
       );
       for (const day of dateRange) {
-        await this.redisWrapperService.makeTourReservationCache(
+        await this.redisWrapperService.makeTourReservationCache({
           tour,
-          day.year(),
-          day.month(),
-        );
+          year: day.year(),
+          month: day.month(),
+        });
       }
 
       return {

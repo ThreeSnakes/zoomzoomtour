@@ -75,21 +75,20 @@ export class TourController {
     @Param('tourId') tourId: number,
     @Body() modifyTourHolidaysRequestDto: ModifyTourHolidaysRequestDto,
   ): Promise<ModifyTourHolidaysResponseDto> {
-    const { tour } = await this.modifyTourHolidaysService.execute({
+    const { tourInfo } = await this.modifyTourHolidaysService.execute({
       tourId: tourId,
       regularHolidays: modifyTourHolidaysRequestDto.regularHoliday,
       holidays: modifyTourHolidaysRequestDto.holiday,
     });
 
     return {
-      id: tour.id,
-      name: tour.name,
-      description: tour.description,
+      id: tourInfo.id,
+      name: tourInfo.name,
+      description: tourInfo.description,
       regularHolidays:
-        (await tour.regularHolidays())?.map(
-          (regularHoliday) => regularHoliday.day,
-        ) || [],
-      holidays: (await tour.holidays())?.map((holiday) => holiday.date) || [],
+        tourInfo.regularHolidays?.map((regularHoliday) => regularHoliday.day) ||
+        [],
+      holidays: tourInfo.holidays?.map((holiday) => holiday.date) || [],
     };
   }
 }

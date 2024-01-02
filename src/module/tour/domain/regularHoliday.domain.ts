@@ -1,11 +1,11 @@
 import * as dayjs from 'dayjs';
+import { Tour } from './tour.domain';
 import { RegularHolidayEntity } from '../../../infra/database/entity/regularHoliday.entity';
-import { TourEntity } from '../../../infra/database/entity/tour.entity';
 
 type PARAM = {
   id?: number;
   day: DAY_OF_WEEK;
-  tour: Promise<TourEntity>;
+  tour: Tour;
   ctime?: dayjs.Dayjs;
   mtime?: dayjs.Dayjs;
 };
@@ -22,16 +22,18 @@ export enum DAY_OF_WEEK {
 
 export class RegularHoliday {
   private readonly _id: number;
+  private readonly _tour: Tour;
   private readonly _day: DAY_OF_WEEK;
-  private readonly _tour: Promise<TourEntity>;
   private readonly _ctime: dayjs.Dayjs;
   private readonly _mtime: dayjs.Dayjs;
 
-  static createFromEntity(entity: RegularHolidayEntity): RegularHoliday {
+  static async createFromEntity(
+    entity: RegularHolidayEntity,
+  ): Promise<RegularHoliday> {
     return new RegularHoliday({
       id: entity.id,
       day: entity.day,
-      tour: entity.tour,
+      tour: await Tour.createFromEntity(await entity.tour),
       ctime: dayjs(entity.ctime),
       mtime: dayjs(entity.mtime),
     });
@@ -45,28 +47,23 @@ export class RegularHoliday {
     this._mtime = param.mtime;
   }
 
-  get id() {
-    return this._id;
+  toEntity(): RegularHolidayEntity {
+    const entity = new RegularHolidayEntity();
+    entity.id = this._id;
+    entity.day = this._day;
+    entity.tour = Promise.resolve(this._tour.toEntity());
+    entity.mtime = this._mtime?.toDate();
+    entity.ctime = this._ctime?.toDate();
+
+    return entity;
   }
 
   get day() {
     return this._day;
   }
 
-  isRegularHoliday(day) {
-    const targetDay = dayjs(day).day();
-
-    return targetDay === this._day;
-  }
-
-  toEntity(): RegularHolidayEntity {
-    const entity = new RegularHolidayEntity();
-    entity.id = this._id;
-    entity.day = this._day;
-    entity.tour = this._tour;
-    entity.mtime = this._mtime?.toDate();
-    entity.ctime = this._ctime?.toDate();
-
-    return entity;
+  isRegularHoliday(date: dayjs.Dayjs) {
+    console.log(this._day, date.day());
+    return this._day === date.day();
   }
 }

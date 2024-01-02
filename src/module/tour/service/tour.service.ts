@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { FetchTourCalendarDto } from '../dto/service/fetchTourCalendar.dto';
 import { ReservationCacheService } from '../../reservationCache/service/reservationCache.service';
 import { TourRepository } from '../repository/tour.repository';
+import { TourInfo } from '../domain/tourInfo.domain';
 
 @Injectable()
 export class TourService {
@@ -11,10 +12,10 @@ export class TourService {
   ) {}
 
   async fetchTourCalendar({ tourId, year, month }: FetchTourCalendarDto) {
-    const tour = await this.tourRepository.getTourById(tourId);
+    const tourInfo = await this.tourRepository.getTourInfoById(tourId);
 
     return this.reservationCacheService.fetchReservationCache({
-      tour,
+      tourInfo,
       year: year,
       month: month,
     });

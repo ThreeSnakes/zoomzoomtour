@@ -6,8 +6,8 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { TourEntity } from './tour.entity';
-import { DAY_OF_WEEK } from '../../../module/tour/domain/regularHoliday.domain';
 import { BaseEntity } from './base.entity';
+import { DAY_OF_WEEK } from '../../../module/tour/domain/regularHoliday.domain';
 
 @Entity('REGULAR_HOLIDAY')
 export class RegularHolidayEntity extends BaseEntity {

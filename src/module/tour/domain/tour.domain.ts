@@ -1,63 +1,37 @@
 import * as dayjs from 'dayjs';
-import { TourEntity } from '../../../infra/database/entity/tour.entity';
-import { SellerEntity } from '../../../infra/database/entity/seller.entity';
-import { RegularHolidayEntity } from '../../../infra/database/entity/regularHoliday.entity';
-import { HolidayEntity } from '../../../infra/database/entity/holiday.entity';
-import { RegularHoliday } from './regularHoliday.domain';
-import { Holiday } from './holiday.domain';
 import { Seller } from '../../seller/domain/seller.domain';
-import { ReservationEntity } from '../../../infra/database/entity/reservation.entity';
-import { Reservation } from '../../reservation/domain/reservation.domain';
+import { TourEntity } from '../../../infra/database/entity/tour.entity';
 
 type PARAM = {
   id?: number;
   name: string;
   description: string;
-  seller: Promise<SellerEntity>;
-  regularHolidays?: Promise<RegularHolidayEntity[]>;
-  holidays?: Promise<HolidayEntity[]>;
-  reservations?: Promise<ReservationEntity[]>;
+  seller: Seller;
   ctime?: dayjs.Dayjs;
   mtime?: dayjs.Dayjs;
 };
 
 export class Tour {
   private readonly _id: number;
-  private readonly _seller: Promise<SellerEntity>;
+  private readonly _seller: Seller;
   private readonly _name: string;
   private readonly _description: string;
-  private readonly _regularHolidays: Promise<RegularHolidayEntity[]>;
-  private readonly _holidays: Promise<HolidayEntity[]>;
-  private readonly _reservations: Promise<ReservationEntity[]>;
   private readonly _ctime: dayjs.Dayjs;
   private readonly _mtime: dayjs.Dayjs;
 
-  static createFromEntity(entity: TourEntity) {
+  static async createFromEntity(entity: TourEntity): Promise<Tour> {
     return new Tour({
       id: entity.id,
-      seller: entity.seller,
+      seller: Seller.createFromEntity(await entity.seller),
       name: entity.name,
-      regularHolidays: entity.regularHoliday,
-      holidays: entity.holiday,
-      reservations: entity.reservation,
       description: entity.description,
-      mtime: dayjs(entity.mtime),
       ctime: dayjs(entity.ctime),
+      mtime: dayjs(entity.mtime),
     });
   }
 
   constructor(param: PARAM) {
-    const {
-      id,
-      name,
-      seller,
-      description,
-      mtime,
-      ctime,
-      regularHolidays,
-      holidays,
-      reservations,
-    } = param;
+    const { id, name, seller, description, mtime, ctime } = param;
 
     if (!name || name.length < 5 || name.length > 100) {
       throw new Error(
@@ -75,9 +49,6 @@ export class Tour {
     this._seller = seller;
     this._name = name;
     this._description = description;
-    this._regularHolidays = regularHolidays;
-    this._holidays = holidays;
-    this._reservations = reservations;
     this._mtime = mtime;
     this._ctime = ctime;
   }
@@ -94,54 +65,16 @@ export class Tour {
     return this._description;
   }
 
-  async seller() {
-    const sellerEntity = await Promise.resolve(this._seller);
-
-    return Seller.createFromEntity(sellerEntity);
+  get seller() {
+    return this._seller;
   }
 
-  async regularHolidays() {
-    const regularHolidayEntities = await Promise.resolve(this._regularHolidays);
-
-    return regularHolidayEntities?.map((regularHoliday) =>
-      RegularHoliday.createFromEntity(regularHoliday),
-    );
+  get mtime() {
+    return this._mtime;
   }
 
-  async holidays() {
-    const holidayEntities = await Promise.resolve(this._holidays);
-
-    return holidayEntities?.map((holiday) => Holiday.createFromEntity(holiday));
-  }
-
-  async isValidTourDate(date: string) {
-    const [regularHolidays, holidays] = await Promise.all([
-      this.regularHolidays(),
-      this.holidays(),
-    ]);
-
-    const isHoliday = holidays?.some((holiday) => holiday.isHoliday(date));
-    console.log(isHoliday);
-
-    if (isHoliday) {
-      return false;
-    }
-
-    const isRegularHoliday = regularHolidays?.some((regularHoliday) =>
-      regularHoliday.isRegularHoliday(date),
-    );
-
-    console.log(isRegularHoliday);
-
-    return !isRegularHoliday;
-  }
-
-  async reservations() {
-    const reservationEntities = await Promise.resolve(this._reservations);
-
-    return reservationEntities?.map((reservation) =>
-      Reservation.createFromEntity(reservation),
-    );
+  get ctime() {
+    return this._ctime;
   }
 
   toEntity() {
@@ -149,9 +82,7 @@ export class Tour {
     entity.id = this._id;
     entity.name = this._name;
     entity.description = this._description;
-    entity.seller = this._seller;
-    entity.holiday = this._holidays;
-    entity.regularHoliday = this._regularHolidays;
+    entity.seller = Promise.resolve(this._seller.toEntity());
     entity.mtime = this._mtime?.toDate();
     entity.ctime = this._ctime?.toDate();
 

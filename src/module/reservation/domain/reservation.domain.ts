@@ -1,8 +1,7 @@
-import { ClientEntity } from '../../../infra/database/entity/client.entity';
-import { TourEntity } from '../../../infra/database/entity/tour.entity';
 import * as dayjs from 'dayjs';
 import { ReservationEntity } from '../../../infra/database/entity/reservation.entity';
 import { Tour } from '../../tour/domain/tour.domain';
+import { Client } from '../../client/domain/client.domain';
 
 export enum RESERVATION_STATE {
   WAIT = 'WAIT', // 대기
@@ -12,49 +11,42 @@ export enum RESERVATION_STATE {
 
 type PARAM = {
   token?: string;
-  client: Promise<ClientEntity>;
-  tour: Promise<TourEntity>;
+  client: Client;
+  tour: Tour;
   state: RESERVATION_STATE;
-  date: string;
+  date: dayjs.Dayjs;
   ctime?: dayjs.Dayjs;
   mtime?: dayjs.Dayjs;
 };
 
 export class Reservation {
   private readonly _token: string;
-  private readonly _client: Promise<ClientEntity>;
-  private readonly _tour: Promise<TourEntity>;
+  private readonly _client: Client;
+  private readonly _tour: Tour;
   private _state: RESERVATION_STATE;
-  private readonly _date: string;
+  private readonly _date: dayjs.Dayjs;
   private readonly _ctime: dayjs.Dayjs;
   private readonly _mtime: dayjs.Dayjs;
 
-  static createFromEntity(entity: ReservationEntity) {
+  static async createFromEntity(entity: ReservationEntity) {
     return new Reservation({
       token: entity.token,
-      client: entity.client,
-      tour: entity.tour,
+      client: Client.createFromEntity(await entity.client),
+      tour: await Tour.createFromEntity(await entity.tour),
       state: entity.state,
-      date: entity.date,
+      date: dayjs(entity.date),
       ctime: dayjs(entity.ctime),
       mtime: dayjs(entity.mtime),
     });
   }
 
   constructor(param: PARAM) {
-    const { token, client, tour, state, ctime, mtime } = param;
-
-    const date = dayjs(param.date, 'YYYY-MM-DD');
-
-    if (!date.isValid()) {
-      throw new Error('Invalid Date');
-    }
-
+    const { token, client, tour, state, date, ctime, mtime } = param;
     this._token = token;
     this._client = client;
     this._tour = tour;
     this._state = state;
-    this._date = date.format('YYYY-MM-DD');
+    this._date = date;
     this._ctime = ctime;
     this._mtime = mtime;
   }
@@ -72,9 +64,7 @@ export class Reservation {
   }
 
   async tour() {
-    const tourEntity = await Promise.resolve(this._tour);
-
-    return Tour.createFromEntity(tourEntity);
+    return this._tour;
   }
 
   public approve() {
@@ -107,10 +97,10 @@ export class Reservation {
   toEntity(): ReservationEntity {
     const entity = new ReservationEntity();
     entity.token = this._token;
-    entity.client = this._client;
-    entity.tour = this._tour;
+    entity.client = Promise.resolve(this._client.toEntity());
+    entity.tour = Promise.resolve(this._tour.toEntity());
     entity.state = this._state;
-    entity.date = this._date;
+    entity.date = this._date?.toDate();
     entity.ctime = this._ctime?.toDate();
     entity.mtime = this._mtime?.toDate();
 

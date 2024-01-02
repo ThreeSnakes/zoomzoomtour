@@ -31,7 +31,7 @@ export class ApproveWaitReservationService {
       if (!reservationEntity) {
         throw new Error(`reservation(${token} is not exist.`);
       }
-      const reservation = Reservation.createFromEntity(reservationEntity);
+      const reservation = await Reservation.createFromEntity(reservationEntity);
 
       reservation.approve();
 
@@ -39,7 +39,7 @@ export class ApproveWaitReservationService {
       await queryRunner.commitTransaction();
 
       return {
-        reservation: Reservation.createFromEntity(result),
+        reservation: await Reservation.createFromEntity(result),
       };
     } catch (e) {
       await queryRunner.rollbackTransaction();

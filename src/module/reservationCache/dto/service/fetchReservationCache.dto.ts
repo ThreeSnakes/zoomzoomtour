@@ -1,7 +1,7 @@
-import { Tour } from '../../../tour/domain/tour.domain';
+import { TourInfo } from '../../../tour/domain/tourInfo.domain';
 
 export class FetchReservationCacheDto {
-  tour: Tour;
+  tourInfo: TourInfo;
   year: number;
   month: number;
 }

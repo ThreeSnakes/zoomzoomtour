@@ -1,4 +1,4 @@
-import { TourInfo } from '../../domain2/tourInfo.domain';
+import { TourInfo } from '../../domain/tourInfo.domain';
 
 export class CreateNewTourResponseDto {
   tourInfo: TourInfo;

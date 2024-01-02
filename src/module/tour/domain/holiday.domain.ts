@@ -1,62 +1,56 @@
+import { Tour } from './tour.domain';
 import * as dayjs from 'dayjs';
 import { HolidayEntity } from '../../../infra/database/entity/holiday.entity';
-import { TourEntity } from '../../../infra/database/entity/tour.entity';
 
 type PARAM = {
   id?: number;
-  date: string;
-  tour: Promise<TourEntity>;
+  date: dayjs.Dayjs;
+  tour: Tour;
   ctime?: dayjs.Dayjs;
   mtime?: dayjs.Dayjs;
 };
 
 export class Holiday {
   private readonly _id: number;
-  private readonly _date: string;
-  private readonly _tour: Promise<TourEntity>;
+  private readonly _tour: Tour;
+  private readonly _date: dayjs.Dayjs;
   private readonly _ctime: dayjs.Dayjs;
   private readonly _mtime: dayjs.Dayjs;
 
-  static createFromEntity(entity: HolidayEntity): Holiday {
+  static async createFromEntity(entity: HolidayEntity): Promise<Holiday> {
     return new Holiday({
       id: entity.id,
-      date: entity.date,
-      tour: entity.tour,
+      date: dayjs(entity.date, 'YYYY-MM-DD'),
+      tour: await Tour.createFromEntity(await entity.tour),
       ctime: dayjs(entity.ctime),
       mtime: dayjs(entity.mtime),
     });
   }
 
   constructor(param: PARAM) {
-    const date = dayjs(param.date, 'YYYY-MM-DD');
-
-    if (!date.isValid()) {
-      throw new Error('Invalid Date');
-    }
-
     this._id = param.id;
-    this._date = date.format('YYYY-MM-DD');
+    this._date = param.date;
     this._tour = param.tour;
     this._ctime = param.ctime;
     this._mtime = param.mtime;
   }
 
-  get date() {
-    return this._date;
-  }
-
-  isHoliday(date: string) {
-    return dayjs(date).isSame(dayjs(this._date));
-  }
-
   toEntity(): HolidayEntity {
     const entity = new HolidayEntity();
     entity.id = this._id;
-    entity.date = this._date;
-    entity.tour = this._tour;
+    entity.date = this._date.format('YYYY-MM-DD');
+    entity.tour = Promise.resolve(this._tour.toEntity());
     entity.mtime = this._mtime?.toDate();
     entity.ctime = this._ctime?.toDate();
 
     return entity;
+  }
+
+  get date() {
+    return this._date.format('YYYY-MM-DD');
+  }
+
+  isHoliday(date: dayjs.Dayjs): boolean {
+    return date.isSame(this._date);
   }
 }

@@ -35,14 +35,14 @@ export class CancelReservationService {
         throw new Error(`reservation${token} is not exist.`);
       }
 
-      const reservation = Reservation.createFromEntity(reservationEntity);
+      const reservation = await Reservation.createFromEntity(reservationEntity);
       reservation.cancel();
 
       const result = await queryRunner.manager.save(reservation.toEntity());
       await queryRunner.commitTransaction();
 
       return {
-        reservation: Reservation.createFromEntity(result),
+        reservation: await Reservation.createFromEntity(result),
       };
     } catch (e) {
       await queryRunner.rollbackTransaction();

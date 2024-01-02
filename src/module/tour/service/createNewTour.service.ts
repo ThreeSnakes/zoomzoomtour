@@ -5,10 +5,10 @@ import { DataSource, QueryRunner } from 'typeorm';
 import { MakeTourReservationCacheService } from '../../reservationCache/service/makeTourReservationCache.service';
 import { DayjsHelperService } from '../../helper/dayjsHelper/dayjsHelper.service';
 import { SellerRepository } from '../repository/seller.repository';
-import { Tour } from '../domain2/tour.domain';
-import { DAY_OF_WEEK, RegularHoliday } from '../domain2/regularHoliday.domain';
-import { Holiday } from '../domain2/holiday.domain';
-import { TourInfo } from '../domain2/tourInfo.domain';
+import { Tour } from '../domain/tour.domain';
+import { DAY_OF_WEEK, RegularHoliday } from '../domain/regularHoliday.domain';
+import { Holiday } from '../domain/holiday.domain';
+import { TourInfo } from '../domain/tourInfo.domain';
 import dayjs from 'dayjs';
 
 @Injectable()
@@ -40,7 +40,7 @@ export class CreateNewTourService {
     );
 
     return Promise.all(
-      result.map((data) => RegularHoliday.createByEntity(data)),
+      result.map((data) => RegularHoliday.createFromEntity(data)),
     );
   }
 

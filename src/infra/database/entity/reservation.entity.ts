@@ -33,7 +33,9 @@ export class ReservationEntity extends BaseEntity {
   state: RESERVATION_STATE;
 
   @Column({
+    type: 'timestamp',
+    precision: 0,
     nullable: false,
   })
-  date: string;
+  date: Date;
 }

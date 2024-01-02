@@ -1,8 +1,9 @@
+import * as dayjs from 'dayjs';
+
 import { Tour } from './tour.domain';
 import { Holiday } from './holiday.domain';
 import { RegularHoliday } from './regularHoliday.domain';
 import { Seller } from '../../seller/domain/seller.domain';
-import * as dayjs from 'dayjs';
 
 type PARAM = {
   id?: number;
@@ -62,9 +63,11 @@ export class TourInfo extends Tour {
     const isHoliday = this._holidays?.some((holiday) =>
       holiday.isHoliday(date),
     );
-    const isRegularHoliday = this._regularHolidays?.some((regularHoliday) => {
-      regularHoliday.isRegualrHoliday(date);
-    });
+    const isRegularHoliday = this._regularHolidays?.some((regularHoliday) =>
+      regularHoliday.isRegularHoliday(date),
+    );
+
+    console.log(isHoliday, isRegularHoliday, dateString);
 
     return isHoliday || isRegularHoliday;
   }

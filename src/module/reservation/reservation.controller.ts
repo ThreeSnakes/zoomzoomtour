@@ -38,7 +38,7 @@ export class ReservationController {
     });
 
     return {
-      tourId: (await reservation.tour()).id,
+      tourId: reservation.tour.id,
       token: reservation.token,
       state: reservation.state,
     };
@@ -63,7 +63,7 @@ export class ReservationController {
     });
 
     return {
-      tourId: (await reservation.tour()).id,
+      tourId: reservation.tour.id,
       token: reservation.token,
       state: reservation.state,
     };
@@ -88,7 +88,7 @@ export class ReservationController {
     });
 
     return {
-      tourId: (await reservation.tour()).id,
+      tourId: reservation.tour.id,
       token: reservation.token,
       state: reservation.state,
     };

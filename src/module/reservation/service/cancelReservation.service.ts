@@ -4,13 +4,16 @@ import { ReservationEntity } from '../../../infra/database/entity/reservation.en
 import { Reservation } from '../domain/reservation.domain';
 import { CancelReservationRequestDto } from '../dto/service/cancelReservationRequest.dto';
 import { CancelReservationResponseDto } from '../dto/service/cancelReservationResponse.dto';
-import { ReservationCacheService } from '../../reservationCache/service/reservationCache.service';
+import { MakeTourReservationCacheService } from '../../reservationCache/service/makeTourReservationCache.service';
+import { TourInfo } from '../../tour/domain/tourInfo.domain';
+import { Holiday } from '../../tour/domain/holiday.domain';
+import { RegularHoliday } from '../../tour/domain/regularHoliday.domain';
 
 @Injectable()
 export class CancelReservationService {
   constructor(
     private readonly dataSource: DataSource,
-    private readonly redisWarpperService: ReservationCacheService,
+    private readonly makeTourReservationCacheService: MakeTourReservationCacheService,
   ) {}
 
   async execute({
@@ -39,7 +42,30 @@ export class CancelReservationService {
       reservation.cancel();
 
       const result = await queryRunner.manager.save(reservation.toEntity());
+      const tour = await result.tour;
+      const holidayEntities = await tour.holiday;
+      const regularHolidayEntities = await tour.regularHoliday;
       await queryRunner.commitTransaction();
+
+      const tourInfo = TourInfo.createFromTour({
+        tour: reservation.tour,
+        holidays: await Promise.all(
+          holidayEntities.map((holidayEntity) =>
+            Holiday.createFromEntity(holidayEntity),
+          ),
+        ),
+        regularHolidays: await Promise.all(
+          regularHolidayEntities.map((regularHolidayEntity) =>
+            RegularHoliday.createFromEntity(regularHolidayEntity),
+          ),
+        ),
+      });
+
+      await this.makeTourReservationCacheService.execute({
+        tourInfo,
+        year: reservation.date.year(),
+        month: reservation.date.month(),
+      });
 
       return {
         reservation: await Reservation.createFromEntity(result),

@@ -8,6 +8,7 @@ import { ReservationCacheModule } from '../reservationCache/reservationCache.mod
 import { DayjsHelperModule } from '../helper/dayjsHelper/dayjsHelper.module';
 import { CreateNewTourService } from './service/createNewTour.service';
 import { ModifyTourHolidaysService } from './service/modifyTourHolidays.service';
+import { TourRepository } from './repository/tour.repository';
 
 @Module({
   controllers: [TourController],
@@ -16,6 +17,11 @@ import { ModifyTourHolidaysService } from './service/modifyTourHolidays.service'
     ReservationCacheModule,
     DayjsHelperModule,
   ],
-  providers: [TourService, CreateNewTourService, ModifyTourHolidaysService],
+  providers: [
+    TourService,
+    CreateNewTourService,
+    ModifyTourHolidaysService,
+    TourRepository,
+  ],
 })
 export class TourModule {}

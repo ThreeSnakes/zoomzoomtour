@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { FetchTourCalendarDto } from '../dto/service/fetchTourCalendar.dto';
+import { FetchTourCalendarRequestDto } from '../dto/service/fetchTourCalendarRequest.dto';
 import { ReservationCacheService } from '../../reservationCache/service/reservationCache.service';
 import { TourRepository } from '../repository/tour.repository';
-import { TourInfo } from '../domain/tourInfo.domain';
+import { FetchTourCalendarResponseDto } from '../dto/service/fetchTourCalendarResponse.dto';
 
 @Injectable()
 export class TourService {
@@ -11,13 +11,22 @@ export class TourService {
     private readonly reservationCacheService: ReservationCacheService,
   ) {}
 
-  async fetchTourCalendar({ tourId, year, month }: FetchTourCalendarDto) {
+  async fetchTourCalendar({
+    tourId,
+    year,
+    month,
+  }: FetchTourCalendarRequestDto): Promise<FetchTourCalendarResponseDto> {
     const tourInfo = await this.tourRepository.getTourInfoById(tourId);
+    const tourCalendar =
+      await this.reservationCacheService.fetchReservationCache({
+        tourInfo,
+        year: year,
+        month: month,
+      });
 
-    return this.reservationCacheService.fetchReservationCache({
+    return {
       tourInfo,
-      year: year,
-      month: month,
-    });
+      tourCalendar,
+    };
   }
 }

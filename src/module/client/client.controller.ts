@@ -7,21 +7,23 @@ import { ApiCreatedResponse } from '@nestjs/swagger/dist/decorators/api-response
 
 @Controller('/v1/client')
 export class ClientController {
-  constructor(private readonly clientService: CreateNewClientService) {}
+  constructor(
+    private readonly createNewClientService: CreateNewClientService,
+  ) {}
 
   @Post()
   @ApiOperation({
-    summary: 'Client 등록 API',
-    description: '신규 Client를 등록할 때 사용한다.',
+    summary: '고객 등록 API',
+    description: '신규 고객을 등록할 때 사용한다.',
   })
   @ApiCreatedResponse({
-    description: 'Client 등록 성공',
+    description: '고객 등록 성공',
     type: RegisterClientResponseDto,
   })
   async registerClient(
     @Body() registerClient: RegisterClient,
   ): Promise<RegisterClientResponseDto> {
-    const { client } = await this.clientService.execute({
+    const { client } = await this.createNewClientService.execute({
       name: registerClient.name,
     });
 

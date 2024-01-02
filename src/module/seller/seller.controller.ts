@@ -12,11 +12,11 @@ export class SellerController {
 
   @Post()
   @ApiOperation({
-    summary: 'Seller 등록 API',
-    description: '신규 Seller를 등록할 때 사용한다.',
+    summary: '판매자 등록 API',
+    description: '신규 판매자를 등록할 때 사용한다.',
   })
   @ApiCreatedResponse({
-    description: 'Tour 등록 성공',
+    description: '판매자 등록 성공',
     type: RegisterSellerRequestDto,
   })
   async registerSeller(@Body() registerSellerDto: RegisterSellerRequestDto) {

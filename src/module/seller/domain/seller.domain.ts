@@ -1,5 +1,6 @@
 import * as dayjs from 'dayjs';
 import { SellerEntity } from '../../../infra/database/entity/seller.entity';
+import { BadRequestException } from '@nestjs/common/exceptions/bad-request.exception';
 
 type PARAM = {
   id?: number;
@@ -25,9 +26,12 @@ export class Seller {
 
   constructor(param: PARAM) {
     const { id, name, ctime, mtime } = param;
+    const parsedName = name.trim();
 
-    if (!name || name.length < 5) {
-      throw new Error('name should be greater than or equal to 5');
+    if (!parsedName || parsedName.length < 5) {
+      throw new BadRequestException(
+        '판매자명은 5자 이상, 100자 이하로 입력되어야 합니다.',
+      );
     }
 
     this._id = id;

@@ -20,6 +20,15 @@ export enum DAY_OF_WEEK {
   'SAT' = 6,
 }
 
+export type DAY_OF_READABLE =
+  | 'SUN'
+  | 'MON'
+  | 'TUE'
+  | 'WED'
+  | 'THU'
+  | 'FRI'
+  | 'SAT';
+
 export class RegularHoliday {
   private readonly _id: number;
   private readonly _tour: Tour;
@@ -60,6 +69,25 @@ export class RegularHoliday {
 
   get day() {
     return this._day;
+  }
+
+  getDateByReadable(): DAY_OF_READABLE {
+    switch (this._day) {
+      case 0:
+        return 'SUN';
+      case 1:
+        return 'MON';
+      case 2:
+        return 'TUE';
+      case 3:
+        return 'WED';
+      case 4:
+        return 'THU';
+      case 5:
+        return 'FRI';
+      case 6:
+        return 'SAT';
+    }
   }
 
   isRegularHoliday(date: dayjs.Dayjs) {

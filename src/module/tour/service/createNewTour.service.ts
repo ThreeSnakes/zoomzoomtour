@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateNewTourRequestDto } from '../dto/service/createNewTourRequest.dto';
 import { CreateNewTourResponseDto } from '../dto/service/createNewTourResponse.dto';
 import { DataSource, QueryRunner } from 'typeorm';
@@ -73,7 +73,13 @@ export class CreateNewTourService {
     tourRegularHoliday,
     tourHoliday,
   }: CreateNewTourRequestDto): Promise<CreateNewTourResponseDto> {
-    const seller = await this.sellerRepository.getSellerById(sellerId);
+    let seller = null;
+
+    try {
+      seller = await this.sellerRepository.getSellerById(sellerId);
+    } catch (e) {
+      throw new NotFoundException(`판매자(${sellerId})를 찾을 수 없습니다.`);
+    }
 
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();

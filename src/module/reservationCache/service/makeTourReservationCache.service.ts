@@ -19,15 +19,13 @@ export class MakeTourReservationCacheService {
     const targetDate = dayjs().year(year).month(month);
     const lastDay = targetDate.endOf('month').get('date');
 
-    const key = `${tourInfo.id}|${targetDate.format('YYYY-MM')}`;
+    const key = `reservation|${tourInfo.id}|${targetDate.format('YYYY-MM')}`;
 
     const result = {};
     for (let i = 1; i <= lastDay; i += 1) {
       const date = targetDate.date(i).format('YYYY-MM-DD');
       const isTourHoliday = tourInfo.isTourHoliday(date);
-      if (!isTourHoliday) {
-        result[i] = 5;
-      }
+      result[i] = isTourHoliday ? 0 : 5;
     }
 
     const reservations =
@@ -44,10 +42,8 @@ export class MakeTourReservationCacheService {
 
       const date = reservation.date;
       if (year === date.year() && month === date.month()) {
-        result[date.date()] -= 1;
-        console.log(date.date(), result[date.date()]);
-        if (result[date.date()] <= 0) {
-          delete result[date.date()];
+        if (result[date.date()] > 0) {
+          result[date.date()] -= 1;
         }
       }
     });

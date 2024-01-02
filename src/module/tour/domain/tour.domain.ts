@@ -33,22 +33,20 @@ export class Tour {
   constructor(param: PARAM) {
     const { id, name, seller, description, mtime, ctime } = param;
 
-    if (!name || name.length < 5 || name.length > 100) {
-      throw new Error(
-        'name should be greater than or equal to 5 and less than or equal 100',
-      );
+    const parsedName = name.trim();
+    if (parsedName.length < 5 || parsedName.length > 100) {
+      throw new Error('투어명은 5자 이상, 100자 이하로 입력되어야 합니다.');
     }
 
-    if (!description || description.length < 5 || description.length > 200) {
-      throw new Error(
-        'description should be greater than or equal to 5 and less than or equal 200',
-      );
+    const parsedDescription = description.trim();
+    if (parsedDescription.length < 5 || parsedDescription.length > 200) {
+      throw new Error('투어 설명은 5자 이상, 200자 이하로 입력되어야 합니다.');
     }
 
     this._id = id;
     this._seller = seller;
-    this._name = name;
-    this._description = description;
+    this._name = parsedName;
+    this._description = parsedDescription;
     this._mtime = mtime;
     this._ctime = ctime;
   }

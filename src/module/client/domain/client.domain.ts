@@ -1,5 +1,7 @@
 import * as dayjs from 'dayjs';
 import { ClientEntity } from '../../../infra/database/entity/client.entity';
+import { NotFoundException } from '@nestjs/common';
+import { BadRequestException } from '@nestjs/common/exceptions/bad-request.exception';
 
 type PARAM = {
   id?: number;
@@ -25,13 +27,16 @@ export class Client {
 
   constructor(param: PARAM) {
     const { id, name, ctime, mtime } = param;
+    const parsedName = name.trim();
 
-    if (!name || name.length < 5) {
-      throw new Error('name should be greater than or equal to 5');
+    if (parsedName.length < 5) {
+      throw new BadRequestException(
+        '고객명은 5글자 이상, 100자 이하로 입력되어야 합니다.',
+      );
     }
 
     this._id = id;
-    this._name = name;
+    this._name = parsedName;
     this._ctime = ctime;
     this._mtime = mtime;
   }

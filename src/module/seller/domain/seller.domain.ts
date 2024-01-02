@@ -28,7 +28,7 @@ export class Seller {
     const { id, name, ctime, mtime } = param;
     const parsedName = name.trim();
 
-    if (!parsedName || parsedName.length < 5) {
+    if (parsedName.length < 5 || parsedName.length > 100) {
       throw new BadRequestException(
         '판매자명은 5자 이상, 100자 이하로 입력되어야 합니다.',
       );

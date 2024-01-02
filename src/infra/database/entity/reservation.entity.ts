@@ -28,7 +28,7 @@ export class ReservationEntity extends BaseEntity {
   tour?: Promise<Awaited<TourEntity>>;
 
   @Column({
-    default: RESERVATION_STATE.WAIT,
+    default: 'WAIT',
   })
   state: RESERVATION_STATE;
 

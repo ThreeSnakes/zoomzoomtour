@@ -91,7 +91,6 @@ export class RegularHoliday {
   }
 
   isRegularHoliday(date: dayjs.Dayjs) {
-    console.log(this._day, date.day());
     return this._day === date.day();
   }
 }

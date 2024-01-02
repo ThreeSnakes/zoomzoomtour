@@ -2,6 +2,7 @@ import * as dayjs from 'dayjs';
 import { ReservationEntity } from '../../../infra/database/entity/reservation.entity';
 import { Tour } from '../../tour/domain/tour.domain';
 import { Client } from '../../client/domain/client.domain';
+import { BadRequestException } from '@nestjs/common/exceptions/bad-request.exception';
 
 export enum RESERVATION_STATE {
   WAIT = 'WAIT', // 대기
@@ -60,16 +61,16 @@ export class Reservation {
   }
 
   get date() {
-    return dayjs(this._date);
+    return this._date;
   }
 
-  async tour() {
+  get tour() {
     return this._tour;
   }
 
   public approve() {
     if (this._state !== RESERVATION_STATE.WAIT) {
-      throw new Error('예약이 대기 상태가 아닙니다.');
+      throw new BadRequestException('예약이 대기 상태가 아닙니다.');
     }
 
     this._state = RESERVATION_STATE.APPROVE;
@@ -77,7 +78,7 @@ export class Reservation {
 
   public cancel() {
     if (this._state !== RESERVATION_STATE.APPROVE) {
-      throw new Error('에약이 승인 상태가 아닙니다.');
+      throw new BadRequestException('에약이 승인 상태가 아닙니다.');
     }
 
     const cancelAvailableDate = dayjs(this._date, 'YYYY-MM-DD')
@@ -86,7 +87,7 @@ export class Reservation {
     const today = dayjs().startOf('date');
 
     if (cancelAvailableDate < today) {
-      throw new Error(
+      throw new BadRequestException(
         '예약을 취소 할 수 없습니다. 예약은 3일전 까지만 취소가 가능합니다.',
       );
     }

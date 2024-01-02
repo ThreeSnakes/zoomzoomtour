@@ -67,8 +67,6 @@ export class TourInfo extends Tour {
       regularHoliday.isRegularHoliday(date),
     );
 
-    console.log(isHoliday, isRegularHoliday, dateString);
-
     return isHoliday || isRegularHoliday;
   }
 }

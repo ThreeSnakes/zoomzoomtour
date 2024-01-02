@@ -29,7 +29,7 @@ export class Client {
     const { id, name, ctime, mtime } = param;
     const parsedName = name.trim();
 
-    if (parsedName.length < 5) {
+    if (parsedName.length < 5 || parsedName.length > 100) {
       throw new BadRequestException(
         '고객명은 5글자 이상, 100자 이하로 입력되어야 합니다.',
       );

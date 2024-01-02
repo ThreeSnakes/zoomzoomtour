@@ -1,6 +1,7 @@
 import * as dayjs from 'dayjs';
 import { Seller } from '../../seller/domain/seller.domain';
 import { TourEntity } from '../../../infra/database/entity/tour.entity';
+import { BadRequestException } from '@nestjs/common/exceptions/bad-request.exception';
 
 type PARAM = {
   id?: number;
@@ -35,12 +36,16 @@ export class Tour {
 
     const parsedName = name.trim();
     if (parsedName.length < 5 || parsedName.length > 100) {
-      throw new Error('투어명은 5자 이상, 100자 이하로 입력되어야 합니다.');
+      throw new BadRequestException(
+        '투어명은 5자 이상, 100자 이하로 입력되어야 합니다.',
+      );
     }
 
     const parsedDescription = description.trim();
     if (parsedDescription.length < 5 || parsedDescription.length > 200) {
-      throw new Error('투어 설명은 5자 이상, 200자 이하로 입력되어야 합니다.');
+      throw new BadRequestException(
+        '투어 설명은 5자 이상, 200자 이하로 입력되어야 합니다.',
+      );
     }
 
     this._id = id;

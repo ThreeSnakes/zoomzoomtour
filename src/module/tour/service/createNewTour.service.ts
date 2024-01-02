@@ -1,25 +1,71 @@
 import { Injectable } from '@nestjs/common';
 import { CreateNewTourRequestDto } from '../dto/service/createNewTourRequest.dto';
 import { CreateNewTourResponseDto } from '../dto/service/createNewTourResponse.dto';
-import { Tour } from '../domain/tour.domain';
-import { RegularHoliday } from '../domain/regularHoliday.domain';
-import { Holiday } from '../domain/holiday.domain';
-import * as dayjs from 'dayjs';
-import { DataSource, Repository } from 'typeorm';
-import { InjectRepository } from '@nestjs/typeorm';
-import { SellerEntity } from '../../../infra/database/entity/seller.entity';
+import { DataSource, QueryRunner } from 'typeorm';
 import { MakeTourReservationCacheService } from '../../reservationCache/service/makeTourReservationCache.service';
 import { DayjsHelperService } from '../../helper/dayjsHelper/dayjsHelper.service';
+import { SellerRepository } from '../repository/seller.repository';
+import { Tour } from '../domain2/tour.domain';
+import { DAY_OF_WEEK, RegularHoliday } from '../domain2/regularHoliday.domain';
+import { Holiday } from '../domain2/holiday.domain';
+import { TourInfo } from '../domain2/tourInfo.domain';
+import dayjs from 'dayjs';
 
 @Injectable()
 export class CreateNewTourService {
   constructor(
     private readonly dataSource: DataSource,
-    @InjectRepository(SellerEntity)
-    private readonly sellerRepository: Repository<SellerEntity>,
+    private readonly sellerRepository: SellerRepository,
     private readonly makeTourReservationCacheService: MakeTourReservationCacheService,
     private readonly dayjsHelperService: DayjsHelperService,
   ) {}
+
+  private async saveRegularHolidays(
+    queryRunner: QueryRunner,
+    tour: Tour,
+    dayList: DAY_OF_WEEK[],
+  ): Promise<RegularHoliday[]> {
+    if (!dayList.length) {
+      return [];
+    }
+
+    const RegularHolidayDomains = dayList.map((day) => {
+      return new RegularHoliday({
+        day,
+        tour,
+      });
+    });
+    const result = await queryRunner.manager.save(
+      RegularHolidayDomains.map((domain) => domain.toEntity()),
+    );
+
+    return Promise.all(
+      result.map((data) => RegularHoliday.createByEntity(data)),
+    );
+  }
+
+  private async saveHoliday(
+    queryRunner: QueryRunner,
+    tour: Tour,
+    dateList: string[],
+  ): Promise<Holiday[]> {
+    if (!dateList.length) {
+      return [];
+    }
+
+    const holidayDomains = dateList.map((date) => {
+      return new Holiday({
+        date: dayjs(date),
+        tour,
+      });
+    });
+    const result = await queryRunner.manager.save(
+      holidayDomains.map((domain) => domain.toEntity()),
+    );
+
+    return Promise.all(result.map((data) => Holiday.createFromEntity(data)));
+  }
+
   async execute({
     sellerId,
     tourName,
@@ -27,13 +73,7 @@ export class CreateNewTourService {
     tourRegularHoliday,
     tourHoliday,
   }: CreateNewTourRequestDto): Promise<CreateNewTourResponseDto> {
-    const seller = await this.sellerRepository.findOneBy({
-      id: sellerId,
-    });
-
-    if (!seller) {
-      throw new Error(`seller(${sellerId}) is not exist.`);
-    }
+    const seller = await this.sellerRepository.getSellerById(sellerId);
 
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
@@ -42,33 +82,21 @@ export class CreateNewTourService {
       const newTour = new Tour({
         name: tourName,
         description: tourDescription,
-        seller: Promise.resolve(seller),
+        seller,
       });
       const tourResult = await queryRunner.manager.save(newTour.toEntity());
-
-      const regularHolidayEntities =
-        tourRegularHoliday?.map((regularHoliday) => {
-          const newRegularHoliday = new RegularHoliday({
-            tour: Promise.resolve(tourResult),
-            day: regularHoliday,
-          });
-          return newRegularHoliday.toEntity();
-        }) || [];
-      await queryRunner.manager.save(regularHolidayEntities);
-      tourResult.regularHoliday = Promise.resolve(regularHolidayEntities);
-
-      const holidayEntities =
-        tourHoliday?.map((holiday) => {
-          const newHoliday = new Holiday({
-            tour: Promise.resolve(tourResult),
-            date: holiday,
-          });
-          return newHoliday.toEntity();
-        }) || [];
-      await queryRunner.manager.save(holidayEntities);
-      tourResult.holiday = Promise.resolve(holidayEntities);
-
-      const tour = Tour.createFromEntity(tourResult);
+      const tour = await Tour.createFromEntity(tourResult);
+      const regularHolidays = await this.saveRegularHolidays(
+        queryRunner,
+        tour,
+        tourRegularHoliday,
+      );
+      const holidays = await this.saveHoliday(queryRunner, tour, tourHoliday);
+      const tourInfo = TourInfo.createFromTour({
+        tour,
+        holidays,
+        regularHolidays,
+      });
       await queryRunner.commitTransaction();
 
       // 해당월부터 3개월치의 예약 가능한 날짜 캐시를 만들어 놓는다.
@@ -79,14 +107,14 @@ export class CreateNewTourService {
       );
       for (const day of dateRange) {
         await this.makeTourReservationCacheService.execute({
-          tour,
+          tourInfo,
           year: day.year(),
           month: day.month(),
         });
       }
 
       return {
-        tour,
+        tourInfo,
       };
     } catch (e) {
       await queryRunner.rollbackTransaction();

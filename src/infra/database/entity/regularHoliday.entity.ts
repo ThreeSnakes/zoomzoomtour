@@ -14,7 +14,9 @@ export class RegularHolidayEntity extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => TourEntity, (tour) => tour.id)
+  @ManyToOne(() => TourEntity, (tour) => tour.id, {
+    lazy: true,
+  })
   @JoinColumn({
     name: 'tour_id',
   })

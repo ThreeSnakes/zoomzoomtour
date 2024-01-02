@@ -1,5 +1,5 @@
-import { Tour } from '../../domain/tour.domain';
+import { TourInfo } from '../../domain2/tourInfo.domain';
 
 export class CreateNewTourResponseDto {
-  tour: Tour;
+  tourInfo: TourInfo;
 }

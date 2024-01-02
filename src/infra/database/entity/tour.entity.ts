@@ -21,7 +21,7 @@ export class TourEntity extends BaseEntity {
   @JoinColumn({
     name: 'seller_id',
   })
-  seller?: Promise<Awaited<SellerEntity>>;
+  seller?: Promise<SellerEntity>;
 
   @Column({
     length: 100,

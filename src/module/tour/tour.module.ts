@@ -9,6 +9,7 @@ import { DayjsHelperModule } from '../helper/dayjsHelper/dayjsHelper.module';
 import { CreateNewTourService } from './service/createNewTour.service';
 import { ModifyTourHolidaysService } from './service/modifyTourHolidays.service';
 import { TourRepository } from './repository/tour.repository';
+import { SellerRepository } from './repository/seller.repository';
 
 @Module({
   controllers: [TourController],
@@ -22,6 +23,7 @@ import { TourRepository } from './repository/tour.repository';
     CreateNewTourService,
     ModifyTourHolidaysService,
     TourRepository,
+    SellerRepository,
   ],
 })
 export class TourModule {}

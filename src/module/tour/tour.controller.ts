@@ -30,7 +30,7 @@ export class TourController {
   async createTour(
     @Body() createTourDto: CreateTourRequestDto,
   ): Promise<CreateTourResponseDto> {
-    const { tour } = await this.createNewTourService.execute({
+    const { tourInfo } = await this.createNewTourService.execute({
       sellerId: createTourDto.sellerId,
       tourName: createTourDto.name,
       tourDescription: createTourDto.description,
@@ -39,14 +39,13 @@ export class TourController {
     });
 
     return {
-      id: tour.id,
-      name: tour.name,
-      description: tour.description,
+      id: tourInfo.id,
+      name: tourInfo.name,
+      description: tourInfo.description,
       regularHolidays:
-        (await tour.regularHolidays())?.map(
-          (regularHoliday) => regularHoliday.day,
-        ) || [],
-      holidays: (await tour.holidays())?.map((holiday) => holiday.date) || [],
+        tourInfo.regularHolidays?.map((regularHoliday) => regularHoliday.day) ||
+        [],
+      holidays: tourInfo.holidays?.map((holiday) => holiday.date) || [],
     };
   }
 

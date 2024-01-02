@@ -14,8 +14,6 @@ import { ReservationEntity } from './infra/database/entity/reservation.entity';
 import { ClientModule } from './module/client/client.module';
 import { ReservationModule } from './module/reservation/reservation.module';
 
-const isDev = process.env.NODE_ENV !== 'production';
-
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -39,7 +37,7 @@ const isDev = process.env.NODE_ENV !== 'production';
           ClientEntity,
           ReservationEntity,
         ],
-        synchronize: isDev,
+        synchronize: false,
       }),
       inject: [ConfigService],
     }),

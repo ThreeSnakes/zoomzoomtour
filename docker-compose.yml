@@ -1,0 +1,47 @@
+version: "3"
+
+services:
+  db:
+    container_name: db
+    image: mysql
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./volume/init.sql:/docker-entrypoint-initdb.d/init.sql
+    environment:
+      MYSQL_ROOT_USER: root
+      MYSQL_ROOT_PASSWORD: test # root Password
+      MYSQL_DATABASE: db  # default DB
+      MYSQL_USER: user  # user name
+      MYSQL_PASSWORD: test  # user password
+      TZ: Asia/Seoul
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-p test","--protocol","tcp" ]
+  redis:
+    container_name: redis
+    image: redis
+    restart: always
+    hostname: redis
+    ports:
+      - "6379:6379"
+  webserver:
+    container_name: webserver
+    restart: always
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    ports:
+      - "3001:3001"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    depends_on:
+      db:
+        condition: service_completed_successfully
+      redis:
+        condition: service_completed_successfully
+    command:
+      sh -c "sleep 10 && npm run start:dev"

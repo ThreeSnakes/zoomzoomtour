@@ -9,9 +9,7 @@ export class ClientRepository {
   constructor(
     @InjectRepository(ClientEntity)
     private readonly clientRepository: Repository<ClientEntity>,
-  ) {
-    this.clientRepository = clientRepository;
-  }
+  ) {}
 
   async createClient(client: Client): Promise<Client> {
     const result = await this.clientRepository.save(client.toEntity());

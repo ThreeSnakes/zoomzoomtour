@@ -5,23 +5,20 @@ import { Repository } from 'typeorm';
 import { CreateNewSellerRequestDto } from '../dto/service/createNewSellerRequest.dto';
 import { Seller } from '../domain/seller.domain';
 import { CreateNewSellerResponseDto } from '../dto/service/createNewSellerResponse.dto';
+import { SellerRepository } from '../repository/seller.repository';
 
 @Injectable()
 export class CreateNewSellerService {
-  constructor(
-    @InjectRepository(SellerEntity)
-    private readonly sellerRepository: Repository<SellerEntity>,
-  ) {
-    this.sellerRepository = sellerRepository;
-  }
+  constructor(private readonly sellerRepository: SellerRepository) {}
   async execute({
     name,
   }: CreateNewSellerRequestDto): Promise<CreateNewSellerResponseDto> {
-    const newSeller = new Seller({ name });
-    const result = await this.sellerRepository.save(newSeller.toEntity());
+    const seller = await this.sellerRepository.createSeller(
+      new Seller({ name }),
+    );
 
     return {
-      seller: Seller.createFromEntity(result),
+      seller,
     };
   }
 }
